@@ -20,13 +20,13 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     const request = context.switchToHttp().getRequest();
 
     const { authorization } = request.headers;
-    console.log(request.headers);
+
     if (authorization === undefined) {
       throw new BadRequestException('토큰이 필요합니다.');
     }
 
     const token = authorization.replace('Bearer ', '');
-    console.log(token, 'token');
+
     const tokenValidate = await this.validate(token);
     request.user = tokenValidate.user ? tokenValidate.user : tokenValidate;
     return true;

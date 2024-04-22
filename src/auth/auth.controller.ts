@@ -46,8 +46,6 @@ export class AuthController {
     @Req() @Req() req: Request & { user: UserDTO },
     @Res() res: Response,
   ) {
-    console.log(req.user, req.user.userId, req.user.email);
-
     const { accessToken, refreshToken } = await this.authService.socialLogin({
       userId: req.user.userId,
       email: req.user.email,

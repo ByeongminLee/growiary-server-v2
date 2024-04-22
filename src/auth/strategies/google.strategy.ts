@@ -18,8 +18,6 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     done: (error: any, user?: any, info?: any) => void,
   ) {
     try {
-      console.log('validate google strategy', profile);
-
       const { id, emails } = profile;
       const user = {
         userId: id,
