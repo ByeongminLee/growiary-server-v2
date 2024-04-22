@@ -33,3 +33,6 @@ lerna-debug.log*
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+
+config.ts
+growiary-v2-firebase-adminsdk-bl5ue-a3d2c2b6d1.json

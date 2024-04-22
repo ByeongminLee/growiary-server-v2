@@ -6,6 +6,8 @@ import {
 import * as express from 'express';
 import * as functions from 'firebase-functions';
 import { AppModule } from './app.module';
+import * as cookieParser from 'cookie-parser';
+
 const server: express.Express = express();
 export const createNestServer = async (expressInstance: express.Express) => {
   const adapter = new ExpressAdapter(expressInstance);
@@ -14,10 +16,13 @@ export const createNestServer = async (expressInstance: express.Express) => {
     adapter,
     {},
   );
-  app.enableCors();
+  app.enableCors({ origin: true, credentials: true });
+  app.use(cookieParser());
   return app.init();
 };
 createNestServer(server)
   .then(() => console.log('Nest Ready'))
   .catch((err) => console.error('Nest broken', err));
-export const api: functions.HttpsFunction = functions.https.onRequest(server);
+export const api: functions.HttpsFunction = functions
+  .region('asia-northeast3')
+  .https.onRequest(server);
