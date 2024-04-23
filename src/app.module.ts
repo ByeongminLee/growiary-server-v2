@@ -3,13 +3,14 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
+import { TopicModule } from './topic/topic.module';
 import * as admin from 'firebase-admin';
 import config from './config';
 
 @Module({
   controllers: [AppController],
   providers: [AppService],
-  imports: [AuthModule, UsersModule],
+  imports: [AuthModule, UsersModule, TopicModule],
 })
 export class AppModule {
   constructor() {
