@@ -11,7 +11,11 @@ export class TopicRepository {
 
     if (!topicDocs.empty) {
       const topics = topicDocs.docs.map((doc) => {
-        return doc.data();
+        const data = doc.data();
+
+        const createdAt = data.createdAt.toDate();
+        const updatedAt = data.updatedAt.toDate();
+        return { ...data, createdAt, updatedAt };
       });
       return topics as TopicDTO[];
     }
@@ -26,7 +30,12 @@ export class TopicRepository {
       .get();
 
     if (topicDoc.exists) {
-      return topicDoc.data() as TopicDTO;
+      const data = topicDoc.data();
+      return {
+        ...data,
+        createdAt: data.createdAt.toDate(),
+        updatedAt: data.updatedAt.toDate(),
+      } as TopicDTO;
     }
 
     return 'NOT_FOUND';
