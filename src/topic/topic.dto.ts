@@ -1,21 +1,23 @@
+import { Timestamp } from 'firebase-admin/firestore';
+
 export interface TopicDTO {
   id: number;
   title: string;
-  icon: string;
+  category: string;
   content: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: Date | Timestamp;
+  updatedAt: Date | Timestamp;
 }
 
 export interface CreateTopicDTO {
   title: string;
-  icon: string;
+  category: string;
   content: string;
 }
 
 export interface UpdateTopicDTO {
   id: number;
   title?: string;
-  icon?: string;
+  category?: string;
   content?: string;
 }

@@ -8,34 +8,34 @@ export class TopicController {
 
   @Get('all')
   async findAllTopic() {
-    const result = await this.topicService.findAllTopic();
-    if (result.length === 0) {
+    const data = await this.topicService.findAllTopic();
+    if (data.length === 0) {
       return {
         message: 'No topics found',
-        result,
+        data,
       };
     }
 
     return {
       message: 'All topics find successfully',
-      result,
+      data,
     };
   }
 
   @Post('find')
   async findOneTopic(@Body('id') id: number) {
-    const result = await this.topicService.findOneTopic(id);
+    const data = await this.topicService.findOneTopic(id);
 
-    if (result === 'NOT_FOUND') {
+    if (data === 'NOT_FOUND') {
       return {
         message: 'Topic not found',
-        result: {},
+        data: {},
       };
     }
 
     return {
       message: 'Topic found successfully',
-      result,
+      data,
     };
   }
 
@@ -51,18 +51,18 @@ export class TopicController {
 
   @Post('update')
   async updateTopic(@Body() updateTopicDTO: UpdateTopicDTO) {
-    const result = await this.topicService.updateTopic(updateTopicDTO);
+    const data = await this.topicService.updateTopic(updateTopicDTO);
 
-    if (result === 'NOT_FOUND') {
+    if (data === 'NOT_FOUND') {
       return {
         message: 'Topic not found',
-        result: {},
+        data: {},
       };
     }
 
     return {
       message: 'Topic updated successfully',
-      result,
+      data,
     };
   }
 }

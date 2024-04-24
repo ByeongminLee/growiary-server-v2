@@ -60,7 +60,7 @@ export class TopicRepository {
     const topicData = {
       id: id,
       title: createTopicDTO.title,
-      icon: createTopicDTO.icon,
+      category: createTopicDTO.category,
       content: createTopicDTO.content,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -88,7 +88,7 @@ export class TopicRepository {
     const updatedTopicData = {
       ...topicData,
       title: updateTopicDTO.title || topicData.title,
-      icon: updateTopicDTO.icon || topicData.icon,
+      category: updateTopicDTO.category || topicData.category,
       content: updateTopicDTO.content || topicData.content,
       updatedAt: new Date(),
     };
