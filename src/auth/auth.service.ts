@@ -4,6 +4,7 @@ import { Payload } from './auth.interface';
 import * as bcrypt from 'bcryptjs';
 import config from 'src/config';
 import { UsersRepository } from 'src/users/users.repository';
+import { AuthDTO } from 'src/users/users.dto';
 // import { UserDTO } from 'src/users/users.dto';
 
 @Injectable()
@@ -48,7 +49,7 @@ export class AuthService {
     return user;
   }
 
-  generateAccessToken(user: any): string {
+  generateAccessToken(user: AuthDTO): string {
     const payload: Payload = {
       userId: user.userId,
     };
@@ -115,5 +116,15 @@ export class AuthService {
 
     await this.usersRepository.logout(userId);
     return;
+  }
+
+  async testJwt() {
+    const user = {
+      userId: '117894279062888578060',
+      email: '',
+    };
+    const accessToken = this.generateAccessToken(user);
+    const refreshToken = await this.generateRefreshToken(user);
+    return { accessToken, refreshToken };
   }
 }

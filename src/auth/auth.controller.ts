@@ -11,9 +11,9 @@ import { AuthService } from './auth.service';
 import { AuthGuard } from '@nestjs/passport';
 import { Request, Response, CookieOptions } from 'express';
 import config from 'src/config';
-import { UserDTO } from 'src/users/users.dto';
+import { AuthDTO } from 'src/users/users.dto';
 import { decrypt, encrypt } from 'src/utils/crypt';
-import { getClientUrl } from 'src/utils/environment';
+import { getClientUrl, getEnvironment } from 'src/utils/environment';
 
 @Controller('auth')
 export class AuthController {
@@ -29,7 +29,7 @@ export class AuthController {
   @Get('kakao')
   @UseGuards(AuthGuard('kakao'))
   async kakaoLogin(
-    @Req() req: Request & { user: UserDTO },
+    @Req() req: Request & { user: AuthDTO },
     @Res() res: Response,
   ) {
     const { accessToken, refreshToken } = await this.authService.socialLogin({
@@ -51,7 +51,7 @@ export class AuthController {
   @Get('google')
   @UseGuards(AuthGuard('google'))
   async googleLogin(
-    @Req() @Req() req: Request & { user: UserDTO },
+    @Req() @Req() req: Request & { user: AuthDTO },
     @Res() res: Response,
   ) {
     const { accessToken, refreshToken } = await this.authService.socialLogin({
@@ -105,7 +105,7 @@ export class AuthController {
 
   // @UseGuards(AuthGuard('jwt'))
   // @Get('logout')
-  // async logout(@Req() req: Request & { user: UserDTO }, @Res() res: Response) {
+  // async logout(@Req() req: Request & { user: AuthDTO }, @Res() res: Response) {
   //   res.clearCookie('accessToken', this.cookieOptions);
   //   res.clearCookie('refreshToken', this.cookieOptions);
 
@@ -124,5 +124,15 @@ export class AuthController {
     return {
       message: 'Success logout',
     };
+  }
+
+  @Get('test')
+  async test(@Req() req: Request) {
+    const env = getEnvironment(req);
+    if (env === 'LOCAL') {
+      const data = await this.authService.testJwt();
+      return { data };
+    }
+    return {};
   }
 }
