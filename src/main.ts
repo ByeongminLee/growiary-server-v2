@@ -16,7 +16,15 @@ export const createNestServer = async (expressInstance: express.Express) => {
     adapter,
     {},
   );
-  app.enableCors({ origin: true, credentials: true });
+  app.enableCors({
+    // origin: true,
+    credentials: true,
+    origin: [
+      'https://dev-growiary-web.vercel.app/',
+      'http://localhost:3000',
+      'https://localhost:3000',
+    ],
+  });
   app.use(cookieParser());
   return app.init();
 };

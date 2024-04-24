@@ -107,7 +107,12 @@ export class AuthService {
     }
   }
 
-  async logout(userId: string): Promise<void> {
+  async logout(refreshToken: string): Promise<void> {
+    const decodedRefreshToken = this.jwtService.verify(refreshToken, {
+      secret: config.JWT_REFRESH_SECRET,
+    }) as Payload;
+    const userId = decodedRefreshToken.userId;
+
     await this.usersRepository.logout(userId);
     return;
   }
