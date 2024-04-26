@@ -6,6 +6,13 @@ import { v4 as uuidv4 } from 'uuid';
 export class UsersRepository {
   constructor() {}
 
+  /**
+   * ㄴ유저 생성
+   * @param userId 소셜 유저 아이디
+   * @param email 메일 주소
+   * @param social 가입한 소셜 서브시 (kakao, google)
+   * @returns 가입한 유저 정보
+   */
   async create({
     userId,
     email,
@@ -33,6 +40,12 @@ export class UsersRepository {
     return userData;
   }
 
+  /**
+   * 유저 정보 반환
+   * @param userId 소셜 유저 아이디
+   * @param uid 유저 고유 아이디
+   * @returns 유저 정보
+   */
   async getUser({
     userId,
     uid,
@@ -66,13 +79,18 @@ export class UsersRepository {
     }
   }
 
+  /**
+   * 유저 refresh token 업데이트
+   * @param userId 소셜 유저 아이디
+   * @param currentRefreshToken 업데이트 할 refresh token
+   */
   async setCurrentRefreshToken({
     userId,
     currentRefreshToken,
   }: {
-    userId: any;
+    userId: string;
     currentRefreshToken: any;
-  }): Promise<any> {
+  }): Promise<null> {
     const prevUserData = await this.getUser({ userId });
     const userDoc = await firestore().collection('users').doc(prevUserData.uid);
 
@@ -86,7 +104,11 @@ export class UsersRepository {
     return;
   }
 
-  async logout(userId: any): Promise<any> {
+  /**
+   * 로그아웃
+   * @param userId 소셜 유저 아이디
+   */
+  async logout(userId: string): Promise<null> {
     const prevUserData = await this.getUser({ userId });
     const userDoc = await firestore().collection('users').doc(prevUserData.uid);
 

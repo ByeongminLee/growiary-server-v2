@@ -16,10 +16,10 @@ export class PostService {
     return await this.postRepository.create({ createPostDTO, userId: uid });
   }
 
-  async findAllPost() {
+  async findAllUserPost() {
     const uid = this.request.user.uid;
 
-    return await this.postRepository.findAll({ userId: uid });
+    return await this.postRepository.findAllUser({ userId: uid });
   }
 
   async findOnePost(postId: string) {

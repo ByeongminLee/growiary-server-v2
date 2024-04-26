@@ -8,6 +8,12 @@ import { Timestamp } from 'firebase-admin/firestore';
 export class PostRepository {
   constructor() {}
 
+  /**
+   * 게시글 생성
+   * @param createPostDTO 게시글 생성 DTO
+   * @param userId 유저 아이디
+   * @returns 생성된 게시글 데이터
+   */
   async create({
     createPostDTO,
     userId,
@@ -31,7 +37,37 @@ export class PostRepository {
     return postData;
   }
 
-  async findAll({ userId }: { userId: string }): Promise<PostDTO[] | []> {
+  /**
+   * 모든 게시글 반환
+   * @returns 모든 게시글 데이터 리스트
+   */
+  async findAll(): Promise<PostDTO[] | []> {
+    const postDocs = await firestore().collection('post').get();
+
+    if (!postDocs.empty) {
+      const posts = postDocs.docs.map((doc) => {
+        const data = doc.data();
+        const posts = Object.values(data).map((post) => {
+          const createdAt = post.createdAt.toDate();
+          const updatedAt = post.updatedAt.toDate();
+          return { ...post, createdAt, updatedAt };
+        });
+
+        return posts;
+      });
+
+      return posts.flat() as PostDTO[];
+    }
+
+    return [];
+  }
+
+  /**
+   * 유저의 모든 게시글 반환
+   * @param userId 유저 아이디
+   * @returns 유저의 모든 게시글 데이터 리스트
+   */
+  async findAllUser({ userId }: { userId: string }): Promise<PostDTO[] | []> {
     const postDocs = await firestore().collection('post').doc(userId).get();
     if (postDocs.exists) {
       const postsOrdinal = postDocs.data();
@@ -47,6 +83,12 @@ export class PostRepository {
     return [];
   }
 
+  /**
+   * 유저의 게시글 하나 반환
+   * @param userId 유저 아이디
+   * @param postId 게시글 아이디
+   * @returns 하나의 게시글 데이터
+   */
   async findOne({
     userId,
     postId,
@@ -73,6 +115,12 @@ export class PostRepository {
     return { ...post, createdAt, updatedAt } as PostDTO;
   }
 
+  /**
+   * 게시글 업데이트
+   * @param updatePostDTO 게시글 업데이트 DTO
+   * @param userId 유저 아이디
+   * @returns 업데이트된 게시글 데이터
+   */
   async update({
     updatePostDTO,
     userId,

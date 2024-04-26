@@ -6,6 +6,10 @@ import { firestore } from 'firebase-admin';
 export class TopicRepository {
   constructor() {}
 
+  /**
+   * 모든 추천 주제 반환
+   * @returns 모든 추천 주제 데이터 리스트
+   */
   async findAll(): Promise<TopicDTO[] | []> {
     const topicDocs = await firestore().collection('topic').get();
 
@@ -23,6 +27,11 @@ export class TopicRepository {
     return [];
   }
 
+  /**
+   * id와 일치하는 추천 주제 반환
+   * @param id 추천 주제(topic)의 id
+   * @returns id와 일치하는 하나의 추천 주제 데이터
+   */
   async findOne(id: number): Promise<TopicDTO | 'NOT_FOUND'> {
     const topicDoc = await firestore()
       .collection('topic')
@@ -41,6 +50,11 @@ export class TopicRepository {
     return 'NOT_FOUND';
   }
 
+  /**
+   * 추천 주제 마지막 번호 반환
+   * @description 마지막 번호 기준으로 새로운 주제를 생성할때 주제의 id로 사용
+   * @returns 주제 마지막 리스트 번호
+   */
   async topicLastIndex(): Promise<number> {
     const topicDocs = await firestore().collection('topic').get();
 
@@ -54,6 +68,12 @@ export class TopicRepository {
     return 0;
   }
 
+  /**
+   * 추천 주제 생성
+   * @param createTopicDTO 주제 데이터
+   * @param id 주제 id
+   * @returns 생성된 추천 주제 데이터
+   */
   async create(createTopicDTO: CreateTopicDTO, id: number): Promise<TopicDTO> {
     const topicDoc = firestore().collection('topic').doc(id.toString());
 
@@ -71,6 +91,11 @@ export class TopicRepository {
     return topicData;
   }
 
+  /**
+   * 추천 주제 업데이트
+   * @param updateTopicDTO 업데이트할 데이터와 id
+   * @returns 업데이트된 추천 주제 데이터
+   */
   async update(
     updateTopicDTO: UpdateTopicDTO,
   ): Promise<TopicDTO | 'NOT_FOUND'> {
