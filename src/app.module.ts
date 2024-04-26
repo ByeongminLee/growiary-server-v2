@@ -4,13 +4,23 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { TopicModule } from './topic/topic.module';
+import { PostModule } from './post/post.module';
 import * as admin from 'firebase-admin';
 import config from './config';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   controllers: [AppController],
   providers: [AppService],
-  imports: [AuthModule, UsersModule, TopicModule],
+  imports: [
+    JwtModule.register({
+      secret: config.JWT_SECRET_ACCESS_KEY,
+    }),
+    AuthModule,
+    UsersModule,
+    TopicModule,
+    PostModule,
+  ],
 })
 export class AppModule {
   constructor() {
