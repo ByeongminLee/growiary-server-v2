@@ -22,6 +22,22 @@ export class TopicController {
     };
   }
 
+  @Get('all/admin')
+  async findAllAdminTopic() {
+    const data = await this.topicService.findAllAdminTopic();
+    if (data.length === 0) {
+      return {
+        message: 'No topics found',
+        data,
+      };
+    }
+
+    return {
+      message: 'All topics find successfully',
+      data,
+    };
+  }
+
   @Post('find')
   async findOneTopic(@Body('id') id: number) {
     const data = await this.topicService.findOneTopic(id);

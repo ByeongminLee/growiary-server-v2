@@ -10,6 +10,10 @@ export class TopicService {
     return await this.topicRepository.findAll();
   }
 
+  async findAllAdminTopic() {
+    return await this.topicRepository.findAllAdmin();
+  }
+
   async findOneTopic(id: number) {
     return await this.topicRepository.findOne(id);
   }

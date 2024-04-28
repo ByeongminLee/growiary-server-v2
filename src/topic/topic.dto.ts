@@ -7,6 +7,7 @@ export interface TopicDTO {
   content: string;
   createdAt: Date | Timestamp;
   updatedAt: Date | Timestamp;
+  status: boolean;
 }
 
 export interface CreateTopicDTO {
@@ -20,4 +21,5 @@ export interface UpdateTopicDTO {
   title?: string;
   category?: string;
   content?: string;
+  status?: boolean;
 }

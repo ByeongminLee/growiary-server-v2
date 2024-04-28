@@ -8,9 +8,35 @@ export class TopicRepository {
 
   /**
    * 모든 추천 주제 반환
+   * @description 활성화된 값만 반환
    * @returns 모든 추천 주제 데이터 리스트
    */
   async findAll(): Promise<TopicDTO[] | []> {
+    const topicDocs = await firestore()
+      .collection('topic')
+      .where('status', '==', true)
+      .get();
+
+    if (!topicDocs.empty) {
+      const topics = topicDocs.docs.map((doc) => {
+        const data = doc.data();
+
+        const createdAt = data.createdAt.toDate();
+        const updatedAt = data.updatedAt.toDate();
+        return { ...data, createdAt, updatedAt };
+      });
+      return topics as TopicDTO[];
+    }
+
+    return [];
+  }
+
+  /**
+   * 모든 추천 주제 반환
+   * @description 비활성화된 값까지 모두 반환
+   * @returns 모든 추천 주제 데이터 리스트
+   */
+  async findAllAdmin(): Promise<TopicDTO[] | []> {
     const topicDocs = await firestore().collection('topic').get();
 
     if (!topicDocs.empty) {
@@ -84,6 +110,7 @@ export class TopicRepository {
       content: createTopicDTO.content,
       createdAt: new Date(),
       updatedAt: new Date(),
+      status: true,
     };
 
     await topicDoc.set(topicData, { merge: true });
@@ -115,6 +142,7 @@ export class TopicRepository {
       title: updateTopicDTO.title || topicData.title,
       category: updateTopicDTO.category || topicData.category,
       content: updateTopicDTO.content || topicData.content,
+      status: updateTopicDTO.status ?? topicData.status,
       updatedAt: new Date(),
     };
 
