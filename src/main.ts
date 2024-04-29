@@ -23,6 +23,7 @@ export const createNestServer = async (expressInstance: express.Express) => {
       'https://dev-growiary-web.vercel.app/',
       'http://localhost:3000',
       'https://localhost:3000',
+      'https://growiary-admin-v2.vercel.app',
     ],
   });
   app.use(cookieParser());
