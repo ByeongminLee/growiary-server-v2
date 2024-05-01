@@ -7,6 +7,7 @@ import { AuthService } from 'src/auth/auth.service';
 import { UsersRepository } from 'src/users/users.repository';
 import { JwtModule } from '@nestjs/jwt';
 import config from 'src/config';
+import { PostFilterService } from './postFilter.service';
 
 @Module({
   controllers: [PostController],
@@ -16,6 +17,7 @@ import config from 'src/config';
     JwtAuthGuard,
     AuthService,
     UsersRepository,
+    PostFilterService,
   ],
   imports: [
     JwtModule.register({

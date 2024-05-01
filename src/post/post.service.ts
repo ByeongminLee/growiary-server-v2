@@ -16,7 +16,19 @@ export class PostService {
     return await this.postRepository.create({ createPostDTO, userId: uid });
   }
 
-  async findAllUserPost() {
+  /**
+   * 전체 유저 post 반환
+   * @returns 전체 유저 post 리스트
+   */
+  async findAllPost() {
+    return await this.postRepository.findAll();
+  }
+
+  /**
+   * 특정 유저의 post 반환
+   * @returns 전체 유저 post 리스트
+   */
+  async findUserAllPost() {
     const uid = this.request.user.uid;
 
     return await this.postRepository.findAllUser({ userId: uid });

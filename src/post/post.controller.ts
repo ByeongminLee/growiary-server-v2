@@ -18,7 +18,7 @@ export class PostController {
   @UseGuards(JwtAuthGuard)
   @Post('all')
   async findAllPost() {
-    const data = await this.postService.findAllUserPost();
+    const data = await this.postService.findUserAllPost();
     if (data.length === 0) {
       return {
         message: 'No posts found',
