@@ -8,6 +8,7 @@ import { PostModule } from './post/post.module';
 import * as admin from 'firebase-admin';
 import config from './config';
 import { JwtModule } from '@nestjs/jwt';
+import { ReportModule } from './report/report.module';
 
 @Module({
   controllers: [AppController],
@@ -20,6 +21,7 @@ import { JwtModule } from '@nestjs/jwt';
     UsersModule,
     TopicModule,
     PostModule,
+    ReportModule,
   ],
 })
 export class AppModule {
