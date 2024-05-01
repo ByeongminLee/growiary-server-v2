@@ -13,7 +13,7 @@ import { Request, Response, CookieOptions } from 'express';
 import config from 'src/config';
 import { AuthDTO } from 'src/users/users.dto';
 import { decrypt, encrypt } from 'src/utils/crypt';
-import { getClientUrl, getEnvironment } from 'src/utils/environment';
+import { getClientUrl } from 'src/utils/environment';
 
 @Controller('auth')
 export class AuthController {
@@ -45,7 +45,7 @@ export class AuthController {
       `{"accessToken":"${accessToken}","refreshToken":"${refreshToken}"}`,
     );
 
-    return res.redirect(`${getClientUrl(req)}/login?key=${key}`);
+    return res.redirect(`${getClientUrl()}/login?key=${key}`);
   }
 
   @Get('google')
@@ -67,7 +67,7 @@ export class AuthController {
       `{"accessToken":"${accessToken}","refreshToken":"${refreshToken}"}`,
     );
 
-    return res.redirect(`${getClientUrl(req)}/login?key=${key}`);
+    return res.redirect(`${getClientUrl()}/login?key=${key}`);
   }
 
   @Get('refresh')
@@ -127,9 +127,9 @@ export class AuthController {
   }
 
   @Get('test')
-  async test(@Req() req: Request) {
-    const env = getEnvironment(req);
-    if (env === 'LOCAL') {
+  async test() {
+    const env = process.env.FUNCTION_TARGET;
+    if (env === 'local') {
       const data = await this.authService.testJwt();
       return { data };
     }

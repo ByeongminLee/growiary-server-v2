@@ -20,7 +20,8 @@ export const createNestServer = async (expressInstance: express.Express) => {
     // origin: true,
     credentials: true,
     origin: [
-      'https://dev-growiary-web.vercel.app/',
+      'https://growiary-web.vercel.app',
+      'https://dev-growiary-web.vercel.app',
       'http://localhost:3000',
       'https://localhost:3000',
       'https://growiary-admin-v2.vercel.app',
@@ -32,6 +33,13 @@ export const createNestServer = async (expressInstance: express.Express) => {
 createNestServer(server)
   .then(() => console.log('Nest Ready'))
   .catch((err) => console.error('Nest broken', err));
+
 export const api: functions.HttpsFunction = functions
+  .region('asia-northeast3')
+  .https.onRequest(server);
+export const dev: functions.HttpsFunction = functions
+  .region('asia-northeast3')
+  .https.onRequest(server);
+export const local: functions.HttpsFunction = functions
   .region('asia-northeast3')
   .https.onRequest(server);

@@ -9,7 +9,7 @@ export class KakaoStrategy extends PassportStrategy(Strategy) {
     super({
       clientID: config.KAKAO_CLIENT_ID,
       clientSecret: config.KAKAO_CLIENT_SECRET,
-      callbackURL: `${config.BACKEND_URL}/auth/kakao`,
+      callbackURL: `${config.BACKEND_URL}/${process.env.FUNCTION_TARGET}/auth/kakao`,
     });
   }
 

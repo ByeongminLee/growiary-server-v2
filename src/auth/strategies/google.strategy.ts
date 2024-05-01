@@ -7,7 +7,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     super({
       clientID: config.GOOGLE_CLIENT_ID,
       clientSecret: config.GOOGLE_CLIENT_SECRET,
-      callbackURL: `${config.BACKEND_URL}/auth/google`,
+      callbackURL: `${config.BACKEND_URL}/${process.env.FUNCTION_TARGET}/auth/google`,
     });
   }
 
