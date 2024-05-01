@@ -121,4 +121,38 @@ export class UsersRepository {
 
     return;
   }
+
+  /**
+   * 유저 업데이트
+   * @param userId 소셜 유저 아이디
+   * @param role 유저 권한
+   */
+  async updateRole({
+    userId,
+    role,
+  }: {
+    userId: string;
+    role: 'user' | 'admin';
+  }): Promise<any> {
+    const prevUserData = await this.getUser({ userId });
+    const userDoc = await firestore().collection('users').doc(prevUserData.uid);
+
+    const userData = {
+      ...prevUserData,
+      role: role,
+    };
+
+    await userDoc.update(userData, { merge: true });
+
+    return userData;
+  }
+
+  /**
+   * 전체 유저 수 반환
+   * @returns 전체 유저 수
+   */
+  async allUserCount(): Promise<any> {
+    const userDoc = await firestore().collection('users').get();
+    return userDoc.size;
+  }
 }

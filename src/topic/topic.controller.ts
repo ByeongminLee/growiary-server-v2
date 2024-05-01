@@ -1,10 +1,15 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { CreateTopicDTO, UpdateTopicDTO } from './topic.dto';
 import { TopicService } from './topic.service';
+import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
+import { UsersService } from 'src/users/users.service';
 
 @Controller('topic')
 export class TopicController {
-  constructor(private readonly topicService: TopicService) {}
+  constructor(
+    private readonly topicService: TopicService,
+    private readonly usersService: UsersService,
+  ) {}
 
   @Get('all')
   async findAllTopic() {
@@ -79,6 +84,21 @@ export class TopicController {
     return {
       message: 'Topic updated successfully',
       data,
+    };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('recommendation')
+  async topicPage() {
+    const data = await this.topicService.recommendationTopic();
+    const allUserCount = await this.usersService.allUserCount();
+
+    return {
+      message: 'Topic recommendation',
+      data: {
+        ...data,
+        allUserCount,
+      },
     };
   }
 }
