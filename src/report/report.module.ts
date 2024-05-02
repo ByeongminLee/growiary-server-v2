@@ -10,6 +10,7 @@ import config from 'src/config';
 import { UsersRepository } from 'src/users/users.repository';
 import { AuthService } from 'src/auth/auth.service';
 import { TopicRepository } from 'src/topic/topic.repository';
+import { ProfileRepository } from 'src/profile/profile.repository';
 
 @Module({
   controllers: [ReportController],
@@ -22,6 +23,7 @@ import { TopicRepository } from 'src/topic/topic.repository';
     AuthService,
     JwtAuthGuard,
     TopicRepository,
+    ProfileRepository,
   ],
   imports: [
     JwtModule.register({

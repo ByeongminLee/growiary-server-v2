@@ -13,12 +13,22 @@ export class ReportService {
     private readonly topicRepository: TopicRepository,
   ) {}
 
-  async report() {
+  async report({ year }: { year: string }) {
     // 모든 유저의 post 데이터
-    const posts = await this.postService.findAllPost();
+    const _posts = await this.postService.findAllPost();
 
     // 유저의 전체 post 데이터
-    const userPosts = await this.postService.findUserAllPost();
+    const _userPosts = await this.postService.findUserAllPost();
+
+    const posts = await this.postFilterService.filterYear({
+      posts: _posts,
+      year,
+    });
+
+    const userPosts = await this.postFilterService.filterYear({
+      posts: _userPosts,
+      year,
+    });
 
     // [기록한 글]
     const { userMonthsCount, allUserMonthsCount } = await this.postMonth({

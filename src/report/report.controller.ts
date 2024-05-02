@@ -1,4 +1,4 @@
-import { Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { ReportService } from './report.service';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 
@@ -8,8 +8,9 @@ export class ReportController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  async report() {
-    const data = await this.reportService.report();
+  async report(@Body('year') year: string) {
+    const data = await this.reportService.report({ year });
+
     return { message: 'Success report', data };
   }
 }
