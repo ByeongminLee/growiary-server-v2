@@ -3,13 +3,16 @@ import { CreateProfileDTO } from './profile.dto';
 import { firestore, storage } from 'firebase-admin';
 import * as fs from 'fs';
 import axios from 'axios';
+import { UsersRepository } from 'src/users/users.repository';
 
 @Injectable()
 export class ProfileRepository {
-  constructor() {}
+  constructor(private readonly usesRepository: UsersRepository) {}
 
   async create(createProfileDTO: CreateProfileDTO) {
-    const ProfileDoc = await firestore().collection('profile').doc();
+    const ProfileDoc = await firestore()
+      .collection('profile')
+      .doc(createProfileDTO.userId);
 
     // const imageFile = await this.downloadImage(createProfileDTO.profileImage);
 
@@ -33,16 +36,29 @@ export class ProfileRepository {
   }
 
   async getProfile(userId: string) {
+    const user = await this.usesRepository.getUser({
+      userId,
+    });
+
+    if (!user) {
+      return undefined;
+    }
+
     const profileDoc = await firestore()
       .collection('profile')
-      .doc(userId)
+      .doc(user.uid)
       .get();
 
     if (!profileDoc.exists) {
       return undefined;
     }
     const profile = profileDoc.data();
-    return profile;
+
+    return {
+      ...profile,
+      createdAt: profile.createdAt.toDate(),
+      updatedAt: profile.updatedAt.toDate(),
+    };
   }
 
   async uploadProfileImage(userId: string, uploadImage: string) {

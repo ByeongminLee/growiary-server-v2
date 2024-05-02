@@ -24,6 +24,6 @@ export class ProfileService {
   async getProfile() {
     const userId = this.request.user.userId;
 
-    return this.profileRepository.getProfile(userId);
+    return await this.profileRepository.getProfile(userId);
   }
 }

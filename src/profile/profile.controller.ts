@@ -7,8 +7,9 @@ export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}
 
   @UseGuards(JwtAuthGuard)
-  @Get('profile')
+  @Get()
   async getProfile() {
+    console.log('profile controller');
     return this.profileService.getProfile();
   }
 }
