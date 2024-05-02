@@ -58,4 +58,12 @@ export class PostController {
 
     return { message: 'Post updated successfully', data: Object.values(data) };
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('continue-range')
+  async continueRangePost() {
+    const data = await this.postService.continueRangePost();
+
+    return { message: 'Post continued successfully', data };
+  }
 }
