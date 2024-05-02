@@ -35,6 +35,8 @@ export class AuthController {
     const { accessToken, refreshToken } = await this.authService.socialLogin({
       userId: req.user.userId,
       email: req.user.email,
+      nickname: req.user.nickname,
+      profileImage: req.user.profileImage,
       social: 'kakao',
     });
 
@@ -58,6 +60,8 @@ export class AuthController {
       userId: req.user.userId,
       email: req.user.email,
       social: 'google',
+      nickname: req.user.nickname,
+      profileImage: req.user.profileImage,
     });
 
     res.cookie('accessToken', accessToken, this.cookieOptions);

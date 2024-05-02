@@ -4,7 +4,8 @@ import { Payload } from './auth.interface';
 import * as bcrypt from 'bcryptjs';
 import config from 'src/config';
 import { UsersRepository } from 'src/users/users.repository';
-import { AuthDTO } from 'src/users/users.dto';
+import { AuthDTO, SocialLoginDTO } from 'src/users/users.dto';
+import { ProfileRepository } from 'src/profile/profile.repository';
 // import { UserDTO } from 'src/users/users.dto';
 
 @Injectable()
@@ -12,38 +13,33 @@ export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
     private readonly usersRepository: UsersRepository,
+    private readonly profileRepository: ProfileRepository,
   ) {}
 
-  async socialLogin({
-    userId,
-    email,
-    social,
-  }: {
-    userId: string;
-    email: string;
-    social: 'kakao' | 'google';
-  }): Promise<{ accessToken: string; refreshToken: string }> {
-    const user = await this.validateUser({ userId, email, social });
+  async socialLogin(
+    socialLoginDTO: SocialLoginDTO,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
+    const user = await this.validateUser(socialLoginDTO);
     const accessToken = this.generateAccessToken(user);
     const refreshToken = await this.generateRefreshToken(user);
     return { accessToken, refreshToken };
   }
 
-  async validateUser({
-    userId,
-    email,
-    social,
-  }: {
-    userId: string;
-    email: string;
-    social: 'kakao' | 'google';
-  }): Promise<any> {
-    let user: any = await this.usersRepository.getUser({ userId });
+  async validateUser(socialLoginDTO: SocialLoginDTO): Promise<any> {
+    let user: any = await this.usersRepository.getUser({
+      userId: socialLoginDTO.userId,
+    });
     if (!user) {
       user = await this.usersRepository.create({
-        userId: userId,
-        email: email,
-        social: social,
+        userId: socialLoginDTO.userId,
+        email: socialLoginDTO.email,
+        social: socialLoginDTO.social,
+      });
+
+      await this.profileRepository.create({
+        userId: user.uid,
+        nickname: socialLoginDTO.nickname,
+        profileImage: socialLoginDTO.profileImage,
       });
     }
     return user;
@@ -122,6 +118,8 @@ export class AuthService {
     const user = {
       userId: '117894279062888578060',
       email: '',
+      nickname: '',
+      profileImage: '',
     };
     const accessToken = this.generateAccessToken(user);
     const refreshToken = await this.generateRefreshToken(user);
