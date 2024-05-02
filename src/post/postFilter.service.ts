@@ -208,4 +208,19 @@ export class PostFilterService {
 
     return { topicId, count: topTopic[topicId] };
   }
+
+  /**
+   * post데이터를 넣으면 해당 년도에 해당하는 데이터만 필터링
+   */
+  async filterYear({
+    posts,
+    year,
+  }: {
+    posts: PostDTO[];
+    year: string;
+  }): Promise<PostDTO[]> {
+    return posts.filter(
+      (post) => new Date(post.writeDate).getFullYear() === +year,
+    );
+  }
 }

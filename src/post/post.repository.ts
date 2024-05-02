@@ -160,4 +160,74 @@ export class PostRepository {
 
     return updateData;
   }
+
+  /**
+   * 오늘 날짜로부터 count되는 날짜까지의 게시글의 작성되었는지 여부를 반환
+   * @description 날짜는 writeDate 기준으로 반환
+   * @description 인덱스 0부터 오늘날짜이며 count가 5라면 5일전까지의 게시글 작성이 되엇는지 여부를 반환
+   * @param userId 유저 아이디
+   * @param count 반환할 날짜 수
+   * @returns boolean[]
+   */
+  async lastPost({
+    userId,
+    count,
+  }: {
+    userId: string;
+    count: number;
+  }): Promise<boolean[]> {
+    const posts = (await this.findAllUser({ userId })) as PostDTO[];
+
+    const today = new Date();
+    const lastDates = Array.from({ length: count }, (_, index) => {
+      const date = new Date();
+      date.setDate(today.getDate() - index);
+      return date;
+    });
+
+    const lastPosts = lastDates.map((date) => {
+      const writeDate = date.toISOString().split('T')[0];
+
+      return posts.some(
+        (post) =>
+          new Date(post.writeDate).toISOString().split('T')[0] === writeDate,
+      );
+    });
+
+    return lastPosts;
+  }
+
+  /**
+   * 연속하게 작성된 게시글 수 반환
+   * @description 오늘 날짜로부터 post의 writeDate 기준으로 연속되게 작성된 게시글 수 반환
+   * @param userId 유저 아이디
+   * @returns 연속되게 작성된 게시글 수
+   */
+  async continueRangePost({ userId }: { userId: string }): Promise<number> {
+    const posts = (await this.findAllUser({ userId })) as PostDTO[];
+
+    posts.sort((a, b) => (a.writeDate > b.writeDate ? -1 : 1));
+
+    let count = 0;
+    const currentDate = new Date();
+
+    for (const post of posts) {
+      const postDate = new Date(post.writeDate);
+
+      // 현재 날짜와 게시글 작성일이 연속되는지 확인
+      if (
+        postDate.getFullYear() === currentDate.getFullYear() &&
+        postDate.getMonth() === currentDate.getMonth() &&
+        postDate.getDate() === currentDate.getDate()
+      ) {
+        count++;
+      } else {
+        break;
+      }
+
+      currentDate.setDate(currentDate.getDate() - 1);
+    }
+
+    return count;
+  }
 }

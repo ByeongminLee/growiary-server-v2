@@ -11,6 +11,7 @@ import { PostFilterService } from 'src/post/postFilter.service';
 import { PostService } from 'src/post/post.service';
 import { UsersRepository } from 'src/users/users.repository';
 import { UsersService } from 'src/users/users.service';
+import { ProfileRepository } from 'src/profile/profile.repository';
 
 @Module({
   controllers: [TopicController],
@@ -24,6 +25,7 @@ import { UsersService } from 'src/users/users.service';
     PostService,
     PostFilterService,
     UsersService,
+    ProfileRepository,
   ],
   imports: [
     JwtModule.register({

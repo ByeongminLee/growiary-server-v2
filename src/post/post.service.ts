@@ -45,4 +45,11 @@ export class PostService {
 
     return await this.postRepository.update({ updatePostDTO, userId: uid });
   }
+
+  async continueRangePost() {
+    const uid = this.request.user.uid;
+    const count = await this.postRepository.continueRangePost({ userId: uid });
+    const post = await this.postRepository.lastPost({ userId: uid, count: 5 });
+    return { post, count };
+  }
 }
