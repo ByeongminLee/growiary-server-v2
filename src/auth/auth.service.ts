@@ -38,6 +38,8 @@ export class AuthService {
 
       await this.profileRepository.create({
         userId: user.uid,
+        email: socialLoginDTO.email,
+        social: socialLoginDTO.social,
         nickname: socialLoginDTO.nickname,
         profileImage: socialLoginDTO.profileImage,
       });
@@ -116,6 +118,7 @@ export class AuthService {
 
   async testJwt() {
     const user = {
+      // kakao 3441743972
       userId: '117894279062888578060',
       email: '',
       nickname: '',

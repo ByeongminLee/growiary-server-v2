@@ -9,7 +9,6 @@ export class ProfileController {
   @UseGuards(JwtAuthGuard)
   @Get()
   async getProfile() {
-    console.log('profile controller');
     return this.profileService.getProfile();
   }
 }
