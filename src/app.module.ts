@@ -11,6 +11,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ReportModule } from './report/report.module';
 import { ChallengeModule } from './challenge/challenge.module';
 import { ProfileModule } from './profile/profile.module';
+import { FeedbackModule } from './feedback/feedback.module';
 
 @Module({
   controllers: [AppController],
@@ -26,6 +27,7 @@ import { ProfileModule } from './profile/profile.module';
     ReportModule,
     ChallengeModule,
     ProfileModule,
+    FeedbackModule,
   ],
 })
 export class AppModule {
