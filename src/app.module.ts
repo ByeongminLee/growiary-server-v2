@@ -9,6 +9,8 @@ import * as admin from 'firebase-admin';
 import config from './config';
 import { JwtModule } from '@nestjs/jwt';
 import { ReportModule } from './report/report.module';
+import { ChallengeModule } from './challenge/challenge.module';
+import { ProfileModule } from './profile/profile.module';
 
 @Module({
   controllers: [AppController],
@@ -22,6 +24,8 @@ import { ReportModule } from './report/report.module';
     TopicModule,
     PostModule,
     ReportModule,
+    ChallengeModule,
+    ProfileModule,
   ],
 })
 export class AppModule {
@@ -32,6 +36,7 @@ export class AppModule {
         clientEmail: config.FIREBASE_CLIENT_EMAIL,
         privateKey: config.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
       }),
+      storageBucket: config.FIREBASE_STORAGE_BUCKET,
     });
   }
 }

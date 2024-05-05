@@ -10,6 +10,8 @@ export interface TopicDTO {
   status: boolean;
 }
 
+// export type TopicCategory = '하루생각' | '자아탐험' | '크리에이티브' | '회고';
+
 export interface CreateTopicDTO {
   title: string;
   category: string;

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CreateTopicDTO, UpdateTopicDTO } from './topic.dto';
+import { CreateTopicDTO, TopicDTO, UpdateTopicDTO } from './topic.dto';
 import { TopicRepository } from './topic.repository';
 import { PostFilterService } from 'src/post/postFilter.service';
 import { PostService } from 'src/post/post.service';
@@ -89,5 +89,43 @@ export class TopicService {
         count: allRecentCount.count,
       },
     };
+  }
+
+  /**
+   * topicList를 category를 키로 가지고 해당하는 topic데이터를 value로 가지는 객체로 반환
+   */
+  async categoryGroupTopic() {
+    const allTopics = (await this.findAllTopic()) as TopicDTO[];
+
+    return allTopics.reduce((groupedTopics, topic) => {
+      const { category } = topic;
+
+      if (!groupedTopics[category]) {
+        groupedTopics[category] = [];
+      }
+
+      groupedTopics[category].push(topic);
+
+      return groupedTopics;
+    }, {});
+  }
+
+  /**
+   * topicList를 category를 키로 가지고 해당하는 topicId들을 배열로 value로 가지는 객체로 반환
+   */
+  async categoryGroupTopicId() {
+    const allTopics = (await this.findAllTopic()) as TopicDTO[];
+
+    return allTopics.reduce((groupedTopics, topic) => {
+      const { category, id } = topic;
+
+      if (!groupedTopics[category]) {
+        groupedTopics[category] = [];
+      }
+
+      groupedTopics[category].push(id);
+
+      return groupedTopics;
+    }, {});
   }
 }
