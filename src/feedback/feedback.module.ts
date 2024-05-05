@@ -8,6 +8,7 @@ import { PostFilterService } from 'src/post/postFilter.service';
 import { ProfileRepository } from 'src/profile/profile.repository';
 import { JwtService } from '@nestjs/jwt';
 import { FeedbackRepository } from './feedback.repository';
+import { ChallengeRepository } from 'src/challenge/challenge.repository';
 
 @Module({
   controllers: [FeedbackController],
@@ -21,6 +22,7 @@ import { FeedbackRepository } from './feedback.repository';
     ProfileRepository,
     FeedbackRepository,
     JwtService,
+    ChallengeRepository,
   ],
 })
 export class FeedbackModule {}

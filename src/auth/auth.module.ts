@@ -9,6 +9,7 @@ import { UsersRepository } from 'src/users/users.repository';
 import { PassportModule } from '@nestjs/passport';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { ProfileRepository } from 'src/profile/profile.repository';
+import { ChallengeRepository } from 'src/challenge/challenge.repository';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { ProfileRepository } from 'src/profile/profile.repository';
     JwtStrategy,
     UsersRepository,
     ProfileRepository,
+    ChallengeRepository,
   ],
 })
 export class AuthModule {}

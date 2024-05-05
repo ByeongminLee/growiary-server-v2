@@ -8,6 +8,7 @@ import { PostFilterService } from 'src/post/postFilter.service';
 import { ProfileRepository } from 'src/profile/profile.repository';
 import { JwtService } from '@nestjs/jwt';
 import { ReserveRepository } from './reserve.repository';
+import { ChallengeRepository } from 'src/challenge/challenge.repository';
 
 @Module({
   controllers: [ReserveController],
@@ -20,6 +21,7 @@ import { ReserveRepository } from './reserve.repository';
     ProfileRepository,
     ReserveRepository,
     JwtService,
+    ChallengeRepository,
   ],
 })
 export class ReserveModule {}

@@ -278,7 +278,7 @@ export class BadgeService {
       return;
     }
 
-    const growthTopicId = groupTopics['성장'].map((topic) => topic.topicId);
+    const growthTopicId = groupTopics['회고'].map((topic) => topic.topicId);
 
     const growthCount = posts.filter((post) =>
       growthTopicId.includes(post.topicId),

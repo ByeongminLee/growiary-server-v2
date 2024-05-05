@@ -62,7 +62,7 @@ export class TopicService {
   }
 
   async recentTopic(posts: PostDTO[]) {
-    const recentTopic = await this.postFilterService.filterRecentTopic(posts);
+    const recentTopic = await this.postFilterService.recentPostTopic(posts);
 
     return recentTopic;
   }

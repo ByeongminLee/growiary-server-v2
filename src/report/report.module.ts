@@ -11,6 +11,7 @@ import { UsersRepository } from 'src/users/users.repository';
 import { AuthService } from 'src/auth/auth.service';
 import { TopicRepository } from 'src/topic/topic.repository';
 import { ProfileRepository } from 'src/profile/profile.repository';
+import { ChallengeRepository } from 'src/challenge/challenge.repository';
 
 @Module({
   controllers: [ReportController],
@@ -24,6 +25,7 @@ import { ProfileRepository } from 'src/profile/profile.repository';
     JwtAuthGuard,
     TopicRepository,
     ProfileRepository,
+    ChallengeRepository,
   ],
   imports: [
     JwtModule.register({

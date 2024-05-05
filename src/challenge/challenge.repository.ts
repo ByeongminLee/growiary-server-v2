@@ -80,4 +80,10 @@ export class ChallengeRepository {
 
     return baseBadge;
   }
+
+  async update({ userId, badgeList }: { userId: string; badgeList: object }) {
+    const badgeDoc = await firestore().collection('badge').doc(userId);
+
+    await badgeDoc.set(badgeList, { merge: true });
+  }
 }

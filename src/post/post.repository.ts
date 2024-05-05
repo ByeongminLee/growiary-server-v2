@@ -3,6 +3,7 @@ import { CreatePostDTO, PostDTO, UpdatePostDTO } from './post.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { firestore } from 'firebase-admin';
 import { Timestamp } from 'firebase-admin/firestore';
+import toDate from 'src/utils/date';
 
 @Injectable()
 export class PostRepository {
@@ -26,14 +27,12 @@ export class PostRepository {
     const post = firestore().collection('post').doc(userId);
 
     const lastIdx = await post.get().then((doc) => {
-      console.log('doc', doc);
       if (doc.exists) {
         return Object.values(doc.data()).length;
       } else {
         return 0;
       }
     });
-    console.log(lastIdx);
 
     const postData = {
       [uid]: {
@@ -64,8 +63,9 @@ export class PostRepository {
           if (post.status === false) return;
           const createdAt = post.createdAt.toDate();
           const updatedAt = post.updatedAt.toDate();
+          const writeDate = toDate(post.writeDate);
           const userId = doc.id;
-          return { ...post, userId, createdAt, updatedAt };
+          return { ...post, writeDate, userId, createdAt, updatedAt };
         });
 
         return posts;
@@ -90,7 +90,8 @@ export class PostRepository {
         if (post.status === false) return;
         const createdAt = post.createdAt.toDate();
         const updatedAt = post.updatedAt.toDate();
-        return { ...post, createdAt, updatedAt };
+        const writeDate = toDate(post.writeDate);
+        return { ...post, writeDate, createdAt, updatedAt };
       });
 
       return posts as PostDTO[];

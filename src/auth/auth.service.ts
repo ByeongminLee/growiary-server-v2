@@ -6,6 +6,7 @@ import config from 'src/config';
 import { UsersRepository } from 'src/users/users.repository';
 import { AuthDTO, SocialLoginDTO } from 'src/users/users.dto';
 import { ProfileRepository } from 'src/profile/profile.repository';
+import { ChallengeRepository } from 'src/challenge/challenge.repository';
 // import { UserDTO } from 'src/users/users.dto';
 
 @Injectable()
@@ -14,6 +15,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly usersRepository: UsersRepository,
     private readonly profileRepository: ProfileRepository,
+    private readonly challengeRepository: ChallengeRepository,
   ) {}
 
   async socialLogin(
@@ -42,6 +44,11 @@ export class AuthService {
         social: socialLoginDTO.social,
         nickname: socialLoginDTO.nickname,
         profileImage: socialLoginDTO.profileImage,
+      });
+
+      await this.challengeRepository.create({
+        userId: user.uid,
+        registerDate: new Date(),
       });
     }
     return user;

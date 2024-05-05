@@ -27,9 +27,15 @@ export class ChallengeService {
       });
     }
     // 3. 현재 가지고 있지 않는 뱃지를 얻을 수 있는지 확인 후 추가
-    await this.badgeService.badgeCheck({
+    const updatedBadge = await this.badgeService.badgeCheck({
       currentBadge: badgeList,
       userId: uid,
+    });
+
+    // 3.1. 뱃지 정보 업데이트
+    await this.challengeRepository.update({
+      userId: uid,
+      badgeList: updatedBadge,
     });
 
     // 4. 나의 랭크 반환
@@ -37,7 +43,7 @@ export class ChallengeService {
       userId: uid,
     });
 
-    // 4. 뱃지 정보와 랭크 반환
+    // 5. 뱃지 정보와 랭크 반환
     return { myBadge, totalUser, myRank };
   }
 
@@ -55,8 +61,8 @@ export class ChallengeService {
       return { totalUser: badgeList.length, myRank: badgeList.length };
     }
 
-    const myBadgeCount = Object.keys(myBadge).length;
-    const rank = badgeList.filter((badge) => {
+    const myBadgeCount = await Object.keys(myBadge).length;
+    const rank = await badgeList.filter((badge) => {
       const badgeCount = Object.keys(badge).length;
       return myBadgeCount < badgeCount;
     });

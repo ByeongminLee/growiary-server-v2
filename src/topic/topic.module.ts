@@ -12,6 +12,7 @@ import { PostService } from 'src/post/post.service';
 import { UsersRepository } from 'src/users/users.repository';
 import { UsersService } from 'src/users/users.service';
 import { ProfileRepository } from 'src/profile/profile.repository';
+import { ChallengeRepository } from 'src/challenge/challenge.repository';
 
 @Module({
   controllers: [TopicController],
@@ -26,6 +27,7 @@ import { ProfileRepository } from 'src/profile/profile.repository';
     PostFilterService,
     UsersService,
     ProfileRepository,
+    ChallengeRepository,
   ],
   imports: [
     JwtModule.register({

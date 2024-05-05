@@ -177,20 +177,31 @@ export class PostFilterService {
     return posts.reduce((acc, cur) => acc + cur.charactersCount, 0);
   }
 
-  async filterRecentTopic(
-    posts: PostDTO[],
-  ): Promise<{ topicId: string; count: number }> {
-    const recentTopic = posts.reduce((acc, cur) => {
-      if (!cur.topicId) return acc;
-      acc[cur.topicId] = acc[cur.topicId] ? acc[cur.topicId] + 1 : 1;
-      return acc;
-    }, {});
-
-    const topicId = Object.keys(recentTopic).reduce((a, b) =>
-      recentTopic[a] > recentTopic[b] ? a : b,
+  async recentPostTopic(posts: PostDTO[]) {
+    const sortedPosts = posts.sort((a, b) =>
+      a.writeDate < b.writeDate ? 1 : -1,
     );
 
-    return { topicId, count: recentTopic[topicId] };
+    let recentTopicId = null;
+    for (const post of sortedPosts) {
+      if (post.topicId) {
+        recentTopicId = post.topicId;
+        break;
+      }
+    }
+
+    if (!recentTopicId) {
+      for (const post of sortedPosts) {
+        if (post.topicId) {
+          recentTopicId = post.topicId;
+          break;
+        }
+      }
+    }
+
+    const count = posts.filter((post) => post.topicId === recentTopicId).length;
+
+    return recentTopicId ? { topicId: recentTopicId, count } : null;
   }
 
   async filterTopTopic(

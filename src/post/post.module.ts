@@ -9,6 +9,7 @@ import { JwtModule } from '@nestjs/jwt';
 import config from 'src/config';
 import { PostFilterService } from './postFilter.service';
 import { ProfileRepository } from 'src/profile/profile.repository';
+import { ChallengeRepository } from 'src/challenge/challenge.repository';
 
 @Module({
   controllers: [PostController],
@@ -20,6 +21,7 @@ import { ProfileRepository } from 'src/profile/profile.repository';
     UsersRepository,
     PostFilterService,
     ProfileRepository,
+    ChallengeRepository,
   ],
   imports: [
     JwtModule.register({

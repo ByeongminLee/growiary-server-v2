@@ -17,7 +17,7 @@ export class ChallengeController {
   async userChallenge() {
     // 유저의 도전과제 반환
     // 얻을 수 있는 도전과제 체크후 업데이트후 반환
-    const data = this.challengeService.challenge();
+    const data = await this.challengeService.challenge();
     return { message: 'challenge', data };
   }
 
