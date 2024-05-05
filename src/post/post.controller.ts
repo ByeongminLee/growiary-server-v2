@@ -56,7 +56,7 @@ export class PostController {
       };
     }
 
-    return { message: 'Post updated successfully', data: Object.values(data) };
+    return { message: 'Post updated successfully', data };
   }
 
   @UseGuards(JwtAuthGuard)
