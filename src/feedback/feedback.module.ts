@@ -19,6 +19,7 @@ import { FeedbackRepository } from './feedback.repository';
     UsersRepository,
     PostFilterService,
     ProfileRepository,
+    FeedbackRepository,
     JwtService,
   ],
 })
