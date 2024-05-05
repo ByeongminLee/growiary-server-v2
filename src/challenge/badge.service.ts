@@ -46,6 +46,7 @@ export class BadgeService {
       posts,
       groupTopics,
     });
+    const _freeWriter = await this.freeWriter({ badgeList, posts });
 
     // 2. 최종적으로 업데이트된 유저의 뱃지 정보 반환
     // 값이 없거나 undefined인 경우에는 반환하지 않음
@@ -61,6 +62,7 @@ export class BadgeService {
       ...(!!_selfWriter && { selfWriter: _selfWriter }),
       ...(!!_growthWriter && { growthWriter: _growthWriter }),
       ...(!!_dailyWriter && { dailyWriter: _dailyWriter }),
+      ...(!!_freeWriter && { freeWriter: _freeWriter }),
     };
   }
 
@@ -324,7 +326,27 @@ export class BadgeService {
   /**
    * 자유로운 기록가 freeWriter
    * @description 자유 작성 30개 이상
+   * @description 자유 작성은 topicId가 65인 경우
    */
+  async freeWriter({ badgeList, posts }) {
+    if (badgeList.freeWriter) {
+      return;
+    }
+
+    const freeCount = posts.filter((post) => post.topicId === 65).length;
+
+    if (freeCount < 30) {
+      return;
+    }
+
+    return {
+      key: 'freeWriter',
+      name: '자유로운 기록가',
+      acquired: true,
+      acquiredDate: posts[freeCount - 1].createdAt,
+    };
+  }
+
   /**
    * 그루어리 홀릭 growiaryHolic
    * @description 30일 이상 연속 접속

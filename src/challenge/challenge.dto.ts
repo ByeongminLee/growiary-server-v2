@@ -20,5 +20,5 @@ type BadgeKeyName =
   | 'selfWriter'
   | 'growthWriter'
   | 'dailyWriter'
-  | 'freeWriter'
-  | 'growiaryHolic';
+  | 'freeWriter';
+// | 'growiaryHolic';

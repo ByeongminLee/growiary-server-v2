@@ -29,6 +29,34 @@ export class ChallengeRepository {
     return badgeList;
   }
 
+  async allUserBadge() {
+    const badge = await firestore().collection('badge').get();
+
+    if (badge.empty) {
+      return [];
+    }
+
+    const badgeList = badge.docs.map((doc) => {
+      const data = doc.data();
+      const badgeList = Object.keys(data).reduce((acc, key) => {
+        const badge = data[key];
+        if (badge.acquiredDate) {
+          acc[key] = {
+            ...badge,
+            acquiredDate: badge.acquiredDate.toDate(),
+          };
+        } else {
+          acc[key] = badge;
+        }
+        return acc;
+      }, {});
+
+      return badgeList;
+    });
+
+    return badgeList;
+  }
+
   async create({
     userId,
     registerDate,
