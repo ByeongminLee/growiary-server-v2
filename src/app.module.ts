@@ -12,6 +12,7 @@ import { ReportModule } from './report/report.module';
 import { ChallengeModule } from './challenge/challenge.module';
 import { ProfileModule } from './profile/profile.module';
 import { FeedbackModule } from './feedback/feedback.module';
+import { ReserveModule } from './reserve/reserve.module';
 
 @Module({
   controllers: [AppController],
@@ -28,6 +29,7 @@ import { FeedbackModule } from './feedback/feedback.module';
     ChallengeModule,
     ProfileModule,
     FeedbackModule,
+    ReserveModule,
   ],
 })
 export class AppModule {
