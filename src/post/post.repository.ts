@@ -29,6 +29,7 @@ export class PostRepository {
       [uid]: {
         ...createPostDTO,
         id: uid,
+        userId: userId,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -50,7 +51,8 @@ export class PostRepository {
         const posts = Object.values(data).map((post) => {
           const createdAt = post.createdAt.toDate();
           const updatedAt = post.updatedAt.toDate();
-          return { ...post, createdAt, updatedAt };
+          const userId = doc.id;
+          return { ...post, userId, createdAt, updatedAt };
         });
 
         return posts;

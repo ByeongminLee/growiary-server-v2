@@ -1,6 +1,7 @@
 import { Timestamp } from 'firebase-admin/firestore';
 
 interface Post {
+  userId: string;
   topicId?: string;
   title: string;
   writeDate: Date;

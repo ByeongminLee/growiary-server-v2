@@ -67,27 +67,70 @@ export class TopicService {
     return recentTopic;
   }
 
+  /**
+   * 가장 많이 사용된 topic
+   * @returns topicId 가장 많이 사용된 topicId
+   * @returns topic 해당 topicId의 topic 데이터
+   * @returns user 해당 topicId를 사용한 유저 수
+   * @returns count 전체 유저가 해당 topicId를 사용한 횟수
+   */
   async recommendationTopic() {
     const allPosts = await this.postService.findAllPost();
-    const userPosts = await this.postService.findUserAllPost();
+    const topicList: TopicDTO[] = await this.findAllTopic();
 
     // growiary에서 가장 많이 사용된 topic {topicId, count}
     const topTopic = await this.topTopic(allPosts);
-    // user가 최근에 사용한 topic {topicId, count}
-    const recentTopic = await this.recentTopic(userPosts);
 
-    // 유저가 최근에 사용한 topic과 해당 topic의 전체 유저가 얼마나 사용했는지
-    const allRecentCount = await this.filterTopicId({
-      topicId: recentTopic.topicId,
-      posts: allPosts,
-    });
+    const topic = topicList.find(
+      (topic) => String(topic.id) === topTopic.topicId,
+    );
+
+    // 해당 topicId를 사용한 유저 수
+    // 중복되지 않는 유저 수
+    const users = allPosts
+      .filter((post) => post.topicId && post.topicId === topTopic.topicId)
+      .map((post) => post.userId)
+      .filter((userId, index, arr) => arr.indexOf(userId) === index).length;
 
     return {
-      top: topTopic,
-      recent: {
-        topicId: recentTopic.topicId,
-        count: allRecentCount.count,
-      },
+      topicId: topTopic.topicId,
+      topic,
+      users,
+      count: topTopic.count,
+    };
+  }
+
+  /**
+   * 최근 사용된 추천 topic
+   * @returns topicId 최근에 유저가 사용한 topicId
+   * @returns topic 해당 topicId의 topic 데이터
+   * @returns users 해당 topicId를 사용한 전체 유저 수
+   * @returns count 전체 유저가 해당 topicId를 사용한 횟수
+   */
+  async recentTopicPost() {
+    const userPosts = await this.postService.findUserAllPost();
+    if (userPosts.length === 0) {
+      return {};
+    }
+    const allPosts = await this.postService.findAllPost();
+    const topicList: TopicDTO[] = await this.findAllTopic();
+
+    // user가 최근에 사용한 topic {topicId, count}
+    const recentTopic = await this.recentTopic(userPosts);
+    const users = allPosts
+      .filter((post) => post.topicId === recentTopic.topicId)
+      .map((post) => post.userId)
+      .filter((userId, index, arr) => arr.indexOf(userId) === index).length;
+
+    const topic = topicList.find(
+      (topic) => String(topic.id) === recentTopic.topicId,
+    );
+
+    return {
+      topicId: recentTopic.topicId,
+      topic,
+      users,
+      count: recentTopic.count,
     };
   }
 
@@ -97,7 +140,7 @@ export class TopicService {
   async categoryGroupTopic() {
     const allTopics = (await this.findAllTopic()) as TopicDTO[];
 
-    return allTopics.reduce((groupedTopics, topic) => {
+    const result = await allTopics.reduce((groupedTopics, topic) => {
       const { category } = topic;
 
       if (!groupedTopics[category]) {
@@ -108,6 +151,8 @@ export class TopicService {
 
       return groupedTopics;
     }, {});
+
+    return result;
   }
 
   /**
@@ -127,5 +172,69 @@ export class TopicService {
 
       return groupedTopics;
     }, {});
+  }
+
+  async categoryTopFilter({
+    posts,
+    categoryGroupTopic,
+    categoryName,
+  }: {
+    posts: PostDTO[];
+    categoryGroupTopic: any;
+    categoryName: string;
+  }): Promise<TopicDTO | object> {
+    const categoryPost = await posts.filter((post) => {
+      return categoryGroupTopic[categoryName].find(
+        (topic) => String(topic.id) === post.topicId,
+      );
+    });
+
+    if (categoryPost.length === 0) {
+      return {};
+    }
+
+    // 해당 카테고리에 해당하는 post들 중 topTopic의 topicId
+    const topTopic = await this.topTopic(categoryPost);
+    const topic = await categoryGroupTopic[categoryName].find(
+      (topic) => String(topic.id) === topTopic.topicId,
+    );
+    return topic;
+  }
+
+  /**
+   * category별 topTopic
+   * @returns category별 topTopic
+   */
+  async categoryTopTopic() {
+    const allPosts = await this.postService.findAllPost();
+    const categoryGroupTopic = await this.categoryGroupTopic();
+
+    const dayThought = await this.categoryTopFilter({
+      posts: allPosts,
+      categoryGroupTopic,
+      categoryName: '하루생각',
+    });
+    const selfExplore = await this.categoryTopFilter({
+      posts: allPosts,
+      categoryGroupTopic,
+      categoryName: '자아탐험',
+    });
+    const creative = await this.categoryTopFilter({
+      posts: allPosts,
+      categoryGroupTopic,
+      categoryName: '크리에이티브',
+    });
+    const review = await this.categoryTopFilter({
+      posts: allPosts,
+      categoryGroupTopic,
+      categoryName: '회고',
+    });
+
+    return {
+      하루생각: dayThought,
+      자아탐험: selfExplore,
+      크리에이티브: creative,
+      회고: review,
+    };
   }
 }

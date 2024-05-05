@@ -87,18 +87,28 @@ export class TopicController {
     };
   }
 
-  @UseGuards(JwtAuthGuard)
   @Post('recommendation')
   async topicPage() {
-    const data = await this.topicService.recommendationTopic();
-    const allUserCount = await this.usersService.allUserCount();
+    const top = await this.topicService.recommendationTopic();
+    const category = await this.topicService.categoryTopTopic();
 
     return {
       message: 'Topic recommendation',
       data: {
-        ...data,
-        allUserCount,
+        top,
+        category,
       },
+    };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('recent')
+  async recentTopic() {
+    const data = await this.topicService.recentTopicPost();
+
+    return {
+      message: 'Recent topic',
+      data,
     };
   }
 }
