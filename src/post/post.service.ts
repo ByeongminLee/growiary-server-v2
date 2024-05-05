@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { PostRepository } from './post.repository';
-import { CreatePostDTO, UpdatePostDTO } from './post.dto';
+import { CreatePostDTO, PostDTO, UpdatePostDTO } from './post.dto';
 import { REQUEST } from '@nestjs/core';
 import { UserDTO } from 'src/users/users.dto';
 
@@ -46,10 +46,39 @@ export class PostService {
     return await this.postRepository.update({ updatePostDTO, userId: uid });
   }
 
-  async continueRangePost() {
+  /**
+   * 주가 post 반환
+   * @description 이번주에 작선된 post의 수를 요일별로 반환
+   * @description 0: 일요일, 1: 월요일, 2: 화요일, 3: 수요일, 4: 목요일, 5: 금요일, 6: 토요일
+   * @returns
+   */
+  async weeklyPost() {
     const uid = this.request.user.uid;
-    const count = await this.postRepository.continueRangePost({ userId: uid });
-    const post = await this.postRepository.lastPost({ userId: uid, count: 5 });
-    return { post, count };
+    const posts: PostDTO[] = await this.postRepository.findAllUser({
+      userId: uid,
+    });
+
+    const today = new Date();
+    const day = today.getDay();
+    const start = new Date(today);
+    start.setDate(today.getDate() - day);
+    start.setHours(0, 0, 0, 0);
+
+    const end = new Date(today);
+    end.setDate(today.getDate() + (6 - day));
+    end.setHours(23, 59, 59, 999);
+
+    const weeklyPosts = posts.filter(
+      (post) =>
+        new Date(post.writeDate) >= start && new Date(post.writeDate) <= end,
+    );
+
+    const weekly = Array(7).fill(0);
+    weeklyPosts.forEach((post) => {
+      const day = new Date(post.writeDate).getDay();
+      weekly[day] += 1;
+    });
+
+    return weekly;
   }
 }

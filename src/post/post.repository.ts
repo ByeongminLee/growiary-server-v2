@@ -198,38 +198,4 @@ export class PostRepository {
 
     return lastPosts;
   }
-
-  /**
-   * 연속하게 작성된 게시글 수 반환
-   * @description 오늘 날짜로부터 post의 writeDate 기준으로 연속되게 작성된 게시글 수 반환
-   * @param userId 유저 아이디
-   * @returns 연속되게 작성된 게시글 수
-   */
-  async continueRangePost({ userId }: { userId: string }): Promise<number> {
-    const posts = (await this.findAllUser({ userId })) as PostDTO[];
-
-    posts.sort((a, b) => (a.writeDate > b.writeDate ? -1 : 1));
-
-    let count = 0;
-    const currentDate = new Date();
-
-    for (const post of posts) {
-      const postDate = new Date(post.writeDate);
-
-      // 현재 날짜와 게시글 작성일이 연속되는지 확인
-      if (
-        postDate.getFullYear() === currentDate.getFullYear() &&
-        postDate.getMonth() === currentDate.getMonth() &&
-        postDate.getDate() === currentDate.getDate()
-      ) {
-        count++;
-      } else {
-        break;
-      }
-
-      currentDate.setDate(currentDate.getDate() - 1);
-    }
-
-    return count;
-  }
 }

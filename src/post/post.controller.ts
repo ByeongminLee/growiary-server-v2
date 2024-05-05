@@ -60,10 +60,10 @@ export class PostController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post('continue-range')
-  async continueRangePost() {
-    const data = await this.postService.continueRangePost();
+  @Post('weekly')
+  async weeklyPost() {
+    const data = await this.postService.weeklyPost();
 
-    return { message: 'Post continued successfully', data };
+    return { message: 'Post weekly successfully', data };
   }
 }
