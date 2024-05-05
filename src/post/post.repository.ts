@@ -25,11 +25,23 @@ export class PostRepository {
 
     const post = firestore().collection('post').doc(userId);
 
+    const lastIdx = await post.get().then((doc) => {
+      console.log('doc', doc);
+      if (doc.exists) {
+        return Object.values(doc.data()).length;
+      } else {
+        return 0;
+      }
+    });
+    console.log(lastIdx);
+
     const postData = {
       [uid]: {
         ...createPostDTO,
         id: uid,
         userId: userId,
+        status: true,
+        index: lastIdx + 1,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -49,6 +61,7 @@ export class PostRepository {
       const posts = postDocs.docs.map((doc) => {
         const data = doc.data();
         const posts = Object.values(data).map((post) => {
+          if (post.status === false) return;
           const createdAt = post.createdAt.toDate();
           const updatedAt = post.updatedAt.toDate();
           const userId = doc.id;
@@ -74,6 +87,7 @@ export class PostRepository {
     if (postDocs.exists) {
       const postsOrdinal = postDocs.data();
       const posts = Object.values(postsOrdinal).map((post) => {
+        if (post.status === false) return;
         const createdAt = post.createdAt.toDate();
         const updatedAt = post.updatedAt.toDate();
         return { ...post, createdAt, updatedAt };
@@ -107,7 +121,7 @@ export class PostRepository {
     const postOrdinal = postDocs.data();
     const post = postOrdinal[postId];
 
-    if (!post) {
+    if (!post || post.status === false) {
       return 'NOT_FOUND';
     }
 

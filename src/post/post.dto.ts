@@ -12,6 +12,8 @@ interface Post {
 
 export interface PostDTO extends Post {
   id: string;
+  status: boolean;
+  index: number;
   createdAt: Date | Timestamp;
   updatedAt: Date | Timestamp;
 }
@@ -26,4 +28,5 @@ export interface UpdatePostDTO {
   charactersCount?: number;
   tags?: string[];
   content?: any;
+  status?: boolean;
 }
