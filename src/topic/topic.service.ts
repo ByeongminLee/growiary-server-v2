@@ -112,6 +112,13 @@ export class TopicService {
     if (userPosts.length === 0) {
       return {};
     }
+
+    // userPosts의 글중에 topicId가 사용이 한번도 없는지 체크
+    const test = userPosts.filter((post) => post.topicId).length;
+    if (test === 0) {
+      return {};
+    }
+
     const allPosts = await this.postService.findAllPost();
     const topicList: TopicDTO[] = await this.findAllTopic();
 
