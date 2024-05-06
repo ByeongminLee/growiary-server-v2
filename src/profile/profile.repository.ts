@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { CreateProfileDTO } from './profile.dto';
+import { CreateProfileDTO, ProfileDTO } from './profile.dto';
 import { firestore, storage } from 'firebase-admin';
 import * as fs from 'fs';
 import axios from 'axios';
 import { UsersRepository } from 'src/users/users.repository';
+import { BadgeKeyName } from 'src/challenge/challenge.dto';
+import toDate from 'src/utils/date';
 
 @Injectable()
 export class ProfileRepository {
@@ -24,6 +26,7 @@ export class ProfileRepository {
     const profile = {
       ...createProfileDTO,
       // profileImage: profileImage || '',
+      titleBadge: 'first',
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -35,29 +38,32 @@ export class ProfileRepository {
     return profile;
   }
 
-  async getProfile(userId: string) {
-    const user = await this.usesRepository.getUser({
-      userId,
+  async updateTitleBadge(userId: string, titleBadge: BadgeKeyName) {
+    const profileDoc = await firestore().collection('profile').doc(userId);
+
+    await profileDoc.update({
+      titleBadge,
+      updatedAt: new Date(),
     });
 
-    if (!user) {
-      return undefined;
-    }
+    return titleBadge;
+  }
 
+  async getProfile(userId: string): Promise<ProfileDTO> {
     const profileDoc = await firestore()
       .collection('profile')
-      .doc(user.uid)
+      .doc(userId)
       .get();
 
     if (!profileDoc.exists) {
       return undefined;
     }
-    const profile = profileDoc.data();
+    const profile = profileDoc.data() as ProfileDTO;
 
     return {
       ...profile,
-      createdAt: profile.createdAt.toDate(),
-      updatedAt: profile.updatedAt.toDate(),
+      createdAt: toDate(profile.createdAt),
+      updatedAt: toDate(profile.updatedAt),
     };
   }
 

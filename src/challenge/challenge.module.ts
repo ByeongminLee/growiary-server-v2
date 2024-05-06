@@ -14,6 +14,7 @@ import { BadgePostService } from './badgePost.service';
 import { TopicService } from 'src/topic/topic.service';
 import { TopicRepository } from 'src/topic/topic.repository';
 import { PostService } from 'src/post/post.service';
+import { ProfileService } from 'src/profile/profile.service';
 
 @Module({
   controllers: [ChallengeController],
@@ -32,6 +33,7 @@ import { PostService } from 'src/post/post.service';
     TopicService,
     TopicRepository,
     PostService,
+    ProfileService,
   ],
 })
 export class ChallengeModule {}

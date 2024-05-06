@@ -3,6 +3,7 @@ import { ProfileRepository } from './profile.repository';
 import { CreateProfileDTO } from './profile.dto';
 import { REQUEST } from '@nestjs/core';
 import { UserDTO } from 'src/users/users.dto';
+import { BadgeKeyName } from 'src/challenge/challenge.dto';
 
 @Injectable()
 export class ProfileService {
@@ -22,8 +23,14 @@ export class ProfileService {
   }
 
   async getProfile() {
-    const userId = this.request.user.userId;
+    const userId = this.request.user.uid;
 
     return await this.profileRepository.getProfile(userId);
+  }
+
+  async profileTitleBadge(titleBadge: BadgeKeyName) {
+    const userId = this.request.user.uid;
+
+    return await this.profileRepository.updateTitleBadge(userId, titleBadge);
   }
 }

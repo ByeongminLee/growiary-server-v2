@@ -8,7 +8,7 @@ export type BadgeList = {
   [key in BadgeKeyName]: Badge;
 };
 
-type BadgeKeyName =
+export type BadgeKeyName =
   | 'first'
   | 'post1'
   | 'post10'

@@ -3,6 +3,7 @@ import { REQUEST } from '@nestjs/core';
 import { UserDTO } from 'src/users/users.dto';
 import { ChallengeRepository } from './challenge.repository';
 import { BadgeService } from './badge.service';
+import { ProfileService } from 'src/profile/profile.service';
 
 @Injectable()
 export class ChallengeService {
@@ -10,6 +11,7 @@ export class ChallengeService {
     @Inject(REQUEST) private readonly request: { user: UserDTO },
     private readonly challengeRepository: ChallengeRepository,
     private readonly badgeService: BadgeService,
+    private readonly profileService: ProfileService,
   ) {}
 
   async challenge() {
@@ -43,8 +45,10 @@ export class ChallengeService {
       userId: uid,
     });
 
+    const { titleBadge } = await this.profileService.getProfile();
+
     // 5. 뱃지 정보와 랭크 반환
-    return { myBadge, totalUser, myRank };
+    return { titleBadge, myBadge, totalUser, myRank };
   }
 
   async userBadgeList() {

@@ -1,4 +1,5 @@
 import { Timestamp } from 'firebase-admin/firestore';
+import { BadgeKeyName } from 'src/challenge/challenge.dto';
 
 export interface ProfileDTO {
   userId: string;
@@ -8,6 +9,7 @@ export interface ProfileDTO {
   social: string;
   createdAt: Date | Timestamp;
   updatedAt: Date | Timestamp;
+  titleBadge: BadgeKeyName;
 }
 
 export interface CreateProfileDTO {
