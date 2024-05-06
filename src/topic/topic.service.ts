@@ -192,7 +192,7 @@ export class TopicService {
   }): Promise<TopicDTO | object> {
     const categoryPost = await posts.filter((post) => {
       return categoryGroupTopic[categoryName].find(
-        (topic) => String(topic.id) === post.topicId,
+        (topic) => String(topic.id) === String(post.topicId),
       );
     });
 
