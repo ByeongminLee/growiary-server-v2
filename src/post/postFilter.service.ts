@@ -184,7 +184,8 @@ export class PostFilterService {
 
     let recentTopicId = null;
     for (const post of sortedPosts) {
-      if (post.topicId) {
+      // topicId가 65번이 아닌 것이 최근에 작성한 글의 topicId (65는 자유주제)
+      if (post.topicId && post.topicId !== '65') {
         recentTopicId = post.topicId;
         break;
       }
