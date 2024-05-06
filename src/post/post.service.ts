@@ -3,12 +3,15 @@ import { PostRepository } from './post.repository';
 import { CreatePostDTO, PostDTO, UpdatePostDTO } from './post.dto';
 import { REQUEST } from '@nestjs/core';
 import { UserDTO } from 'src/users/users.dto';
+import { TopicRepository } from 'src/topic/topic.repository';
+import { TopicDTO } from 'src/topic/topic.dto';
 
 @Injectable()
 export class PostService {
   constructor(
     private readonly postRepository: PostRepository,
     @Inject(REQUEST) private readonly request: { user: UserDTO },
+    private readonly topicRepository: TopicRepository,
   ) {}
 
   async createPost(createPostDTO: CreatePostDTO) {
@@ -38,6 +41,83 @@ export class PostService {
     const uid = this.request.user.uid;
 
     return await this.postRepository.findOne({ userId: uid, postId });
+  }
+
+  async findMonthPost(month: string) {
+    const uid = this.request.user.uid;
+
+    return await this.postRepository.findMonth({ userId: uid, month });
+  }
+
+  async myRecordPost(month: string) {
+    const uid = this.request.user.uid;
+    const monthPost = await this.postRepository.findMonth({
+      userId: uid,
+      month,
+    });
+
+    if (monthPost === 'NOT_FOUND') {
+      return 'NOT_FOUND';
+    }
+
+    const groupTopicId = await this.categoryGroupTopicId();
+
+    // 카테고리 별로 그룹핑
+    const groupPost = Object.keys(groupTopicId).reduce((acc, category) => {
+      const topicIds = groupTopicId[category];
+      const categoryPost = monthPost.filter((post) =>
+        topicIds.includes(Number(post.topicId)),
+      );
+
+      acc[category] = categoryPost;
+
+      return acc;
+    }, {});
+
+    // 카테고리별 개수
+    const categoryCount = Object.keys(groupPost).reduce((acc, category) => {
+      acc[category] = groupPost[category].length;
+      return acc;
+    }, {});
+
+    return { posts: monthPost, category: categoryCount };
+  }
+
+  async categoryGroupTopicId() {
+    const allTopics = (await this.topicRepository.findAll()) as TopicDTO[];
+
+    return allTopics.reduce((groupedTopics, topic) => {
+      const { category, id } = topic;
+
+      if (!groupedTopics[category]) {
+        groupedTopics[category] = [];
+      }
+
+      groupedTopics[category].push(id);
+
+      return groupedTopics;
+    }, {});
+
+    // return   {
+    // >    '하루생각': [
+    //   >      0, 1, 10, 11, 12, 13,
+    //   >      2, 3,  4,  5,  6,  7,
+    //   >      8, 9
+    //   >    ],
+    //   >    '자아탐험': [
+    //   >      14, 15, 16, 17, 18, 19, 20, 21, 22,
+    //   >      23, 24, 25, 26, 27, 28, 29, 30, 31,
+    //   >      32, 33, 34, 35, 36, 37, 38, 39, 40,
+    //   >      41, 42, 43, 44
+    //   >    ],
+    //   >    '크리에이티브': [
+    //   >      45, 46, 47, 48, 49, 50,
+    //   >      51, 52, 53, 54, 55, 56,
+    //   >      57, 58, 59
+    //   >    ],
+    //   >    '회고': [ 60, 61, 62, 63, 64 ],
+    //   >    '자유': [ 65 ]
+    //   >  }
   }
 
   async updatePost(updatePostDTO: UpdatePostDTO) {

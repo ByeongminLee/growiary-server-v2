@@ -45,6 +45,36 @@ export class PostController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Post('month')
+  async findMonthPost(@Body('month') month: string) {
+    const data = await this.postService.findMonthPost(month);
+
+    if (data === 'NOT_FOUND') {
+      return {
+        message: 'Post not found',
+        data: {},
+      };
+    }
+
+    return { message: 'Post found Month successfully', data };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('record')
+  async myRecordPost(@Body('month') month: string) {
+    const data = await this.postService.myRecordPost(month);
+
+    if (data === 'NOT_FOUND') {
+      return {
+        message: 'Post not found',
+        data: {},
+      };
+    }
+
+    return { message: 'My record found successfully', data };
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Post('update')
   async updatePost(@Body() updatePostDTO: UpdatePostDTO) {
     const data = await this.postService.updatePost(updatePostDTO);

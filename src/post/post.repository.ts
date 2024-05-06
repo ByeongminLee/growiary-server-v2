@@ -59,14 +59,16 @@ export class PostRepository {
     if (!postDocs.empty) {
       const posts = postDocs.docs.map((doc) => {
         const data = doc.data();
-        const posts = Object.values(data).map((post) => {
-          if (post.status === false) return;
-          const createdAt = post.createdAt.toDate();
-          const updatedAt = post.updatedAt.toDate();
-          const writeDate = toDate(post.writeDate);
-          const userId = doc.id;
-          return { ...post, writeDate, userId, createdAt, updatedAt };
-        });
+
+        const posts = Object.values(data)
+          .filter((post) => post.status !== false)
+          .map((post) => {
+            const createdAt = post.createdAt.toDate();
+            const updatedAt = post.updatedAt.toDate();
+            const writeDate = toDate(post.writeDate);
+            const userId = doc.id;
+            return { ...post, writeDate, userId, createdAt, updatedAt };
+          });
 
         return posts;
       });
@@ -86,18 +88,62 @@ export class PostRepository {
     const postDocs = await firestore().collection('post').doc(userId).get();
     if (postDocs.exists) {
       const postsOrdinal = postDocs.data();
-      const posts = Object.values(postsOrdinal).map((post) => {
-        if (post.status === false) return;
+      const posts = Object.values(postsOrdinal)
+        .filter((post) => post.status !== false)
+        .map((post) => {
+          const createdAt = post.createdAt.toDate();
+          const updatedAt = post.updatedAt.toDate();
+          const writeDate = toDate(post.writeDate);
+          return { ...post, writeDate, createdAt, updatedAt };
+        });
+
+      return posts as PostDTO[];
+    }
+
+    return [];
+  }
+
+  /**
+   * 해당 하는 달의 post만 불러오기
+   * @param month 해당하는 달
+   * @param userId 유저 아이디
+   * @returns 해당하는 달의 post 리스트
+   */
+  async findMonth({
+    userId,
+    month,
+  }: {
+    userId: string;
+    month: string;
+  }): Promise<PostDTO[] | 'NOT_FOUND'> {
+    const postDocs = await firestore().collection('post').doc(userId).get();
+
+    if (!postDocs.exists) {
+      return 'NOT_FOUND';
+    }
+
+    const postsOrdinal = postDocs.data();
+    const posts = Object.values(postsOrdinal)
+      .filter((post) => post.status !== false)
+      .map((post) => {
         const createdAt = post.createdAt.toDate();
         const updatedAt = post.updatedAt.toDate();
         const writeDate = toDate(post.writeDate);
         return { ...post, writeDate, createdAt, updatedAt };
       });
 
-      return posts as PostDTO[];
+    const monthPosts = posts.filter((post) => {
+      const postMonth = Number(
+        toDate(post.writeDate).toISOString().split('-')[1],
+      );
+      return postMonth.toString() === month;
+    });
+
+    if (monthPosts.length === 0) {
+      return 'NOT_FOUND';
     }
 
-    return [];
+    return monthPosts as PostDTO[];
   }
 
   /**

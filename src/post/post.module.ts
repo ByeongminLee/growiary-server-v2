@@ -10,6 +10,7 @@ import config from 'src/config';
 import { PostFilterService } from './postFilter.service';
 import { ProfileRepository } from 'src/profile/profile.repository';
 import { ChallengeRepository } from 'src/challenge/challenge.repository';
+import { TopicRepository } from 'src/topic/topic.repository';
 
 @Module({
   controllers: [PostController],
@@ -22,6 +23,7 @@ import { ChallengeRepository } from 'src/challenge/challenge.repository';
     PostFilterService,
     ProfileRepository,
     ChallengeRepository,
+    TopicRepository,
   ],
   imports: [
     JwtModule.register({
