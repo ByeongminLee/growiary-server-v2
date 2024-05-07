@@ -9,6 +9,7 @@ import { ProfileRepository } from 'src/profile/profile.repository';
 import { JwtService } from '@nestjs/jwt';
 import { ReserveRepository } from './reserve.repository';
 import { ChallengeRepository } from 'src/challenge/challenge.repository';
+import { TopicRepository } from 'src/topic/topic.repository';
 
 @Module({
   controllers: [ReserveController],
@@ -22,6 +23,7 @@ import { ChallengeRepository } from 'src/challenge/challenge.repository';
     ReserveRepository,
     JwtService,
     ChallengeRepository,
+    TopicRepository,
   ],
 })
 export class ReserveModule {}

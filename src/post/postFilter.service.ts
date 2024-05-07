@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { PostDTO } from 'src/post/post.dto';
+import { TopicDTO } from 'src/topic/topic.dto';
+import { TopicRepository } from 'src/topic/topic.repository';
 
 @Injectable()
 export class PostFilterService {
-  constructor() {}
+  constructor(private readonly topicRepository: TopicRepository) {}
 
   /**
    * post데이터를 월별로 필터링
@@ -185,7 +187,7 @@ export class PostFilterService {
     let recentTopicId = null;
     for (const post of sortedPosts) {
       // topicId가 65번이 아닌 것이 최근에 작성한 글의 topicId (65는 자유주제)
-      if (post.topicId && post.topicId !== '65') {
+      if (post.topicId && post.topicId != '65') {
         recentTopicId = post.topicId;
         break;
       }
@@ -234,5 +236,16 @@ export class PostFilterService {
     return posts.filter(
       (post) => new Date(post.writeDate).getFullYear() === +year,
     );
+  }
+
+  /**
+   * post 데이터를 넣으면 topicId값에 해당하는 topic 데이터를 같이 반환
+   */
+  async postAddTopic({ posts }: { posts: PostDTO[] }) {
+    const topicList: TopicDTO[] = await this.topicRepository.findAll();
+    return posts.map((post) => {
+      const topic = topicList.find((topic) => String(topic.id) == post.topicId);
+      return { ...post, topic };
+    });
   }
 }

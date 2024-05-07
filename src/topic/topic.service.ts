@@ -56,7 +56,13 @@ export class TopicService {
   }
 
   async topTopic(posts: PostDTO[]) {
-    const topTopic = await this.postFilterService.filterTopTopic(posts);
+    // posts에서 topicId가 65번이 아닌 것을 필터링
+    // 자유주제 제외
+    const filteredPosts = posts.filter(
+      (post) => post.topicId && post.topicId != '65',
+    );
+
+    const topTopic = await this.postFilterService.filterTopTopic(filteredPosts);
 
     return topTopic;
   }
@@ -108,14 +114,14 @@ export class TopicService {
    * @returns count 전체 유저가 해당 topicId를 사용한 횟수
    */
   async recentTopicPost() {
-    const userPosts = await this.postService.findUserAllPost();
+    const userPosts: PostDTO[] = await this.postService.findUserAllPost();
     if (userPosts.length === 0) {
       return {};
     }
 
     // userPosts의 글중에 topicId가 사용이 한번도 없는지 체크
-    const test = userPosts.filter((post) => post.topicId).length;
-    if (test === 0) {
+    const userPostsLen = userPosts.filter((post) => post.topicId).length;
+    if (userPostsLen === 0) {
       return {};
     }
 
@@ -129,9 +135,7 @@ export class TopicService {
       .map((post) => post.userId)
       .filter((userId, index, arr) => arr.indexOf(userId) === index).length;
 
-    const topic = topicList.find(
-      (topic) => String(topic.id) === recentTopic.topicId,
-    );
+    const topic = topicList.find((topic) => topic.id == recentTopic.topicId);
 
     return {
       topicId: recentTopic.topicId,

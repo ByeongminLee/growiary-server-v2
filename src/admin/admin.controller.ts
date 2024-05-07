@@ -8,7 +8,6 @@ export class AdminController {
 
   @Post('post/create')
   async testCreatePost(@Body() testCreatePostDTO: TestCreatePostDTO) {
-    console.log('test start');
     const data = await this.adminService.testCreatePost(testCreatePostDTO);
     return { message: 'test post created', data };
   }

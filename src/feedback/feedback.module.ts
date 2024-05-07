@@ -9,6 +9,7 @@ import { ProfileRepository } from 'src/profile/profile.repository';
 import { JwtService } from '@nestjs/jwt';
 import { FeedbackRepository } from './feedback.repository';
 import { ChallengeRepository } from 'src/challenge/challenge.repository';
+import { TopicRepository } from 'src/topic/topic.repository';
 
 @Module({
   controllers: [FeedbackController],
@@ -23,6 +24,7 @@ import { ChallengeRepository } from 'src/challenge/challenge.repository';
     FeedbackRepository,
     JwtService,
     ChallengeRepository,
+    TopicRepository,
   ],
 })
 export class FeedbackModule {}

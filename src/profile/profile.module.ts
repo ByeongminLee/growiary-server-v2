@@ -8,6 +8,7 @@ import { UsersRepository } from 'src/users/users.repository';
 import { PostFilterService } from 'src/post/postFilter.service';
 import { ProfileRepository } from './profile.repository';
 import { ChallengeRepository } from 'src/challenge/challenge.repository';
+import { TopicRepository } from 'src/topic/topic.repository';
 
 @Module({
   controllers: [ProfileController],
@@ -20,6 +21,7 @@ import { ChallengeRepository } from 'src/challenge/challenge.repository';
     PostFilterService,
     ProfileRepository,
     ChallengeRepository,
+    TopicRepository,
   ],
 })
 export class ProfileModule {}

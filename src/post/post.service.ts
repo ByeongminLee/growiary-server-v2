@@ -5,6 +5,7 @@ import { REQUEST } from '@nestjs/core';
 import { UserDTO } from 'src/users/users.dto';
 import { TopicRepository } from 'src/topic/topic.repository';
 import { TopicDTO } from 'src/topic/topic.dto';
+import { PostFilterService } from './postFilter.service';
 
 @Injectable()
 export class PostService {
@@ -12,6 +13,7 @@ export class PostService {
     private readonly postRepository: PostRepository,
     @Inject(REQUEST) private readonly request: { user: UserDTO },
     private readonly topicRepository: TopicRepository,
+    private readonly postFilterService: PostFilterService,
   ) {}
 
   async createPost(createPostDTO: CreatePostDTO) {
@@ -46,7 +48,20 @@ export class PostService {
   async findMonthPost(month: string) {
     const uid = this.request.user.uid;
 
-    return await this.postRepository.findMonth({ userId: uid, month });
+    const monthsPost = await this.postRepository.findMonth({
+      userId: uid,
+      month,
+    });
+
+    if (monthsPost === 'NOT_FOUND') {
+      return 'NOT_FOUND';
+    }
+
+    const posts = await this.postFilterService.postAddTopic({
+      posts: monthsPost,
+    });
+
+    return posts;
   }
 
   async myRecordPost(month: string) {
@@ -160,5 +175,59 @@ export class PostService {
     });
 
     return weekly;
+  }
+
+  /**
+   * 어제 날짜로 부터 연속된 post 개수 반환
+   */
+  async continueRangePost() {
+    const uid = this.request.user.uid;
+    const posts: PostDTO[] = await this.postRepository.findAllUser({
+      userId: uid,
+    });
+    const countPostsByDate = await this.countPostsByDate(posts);
+
+    const result: { [date: string]: number } = {};
+    let currentDate: string | null = new Date().toISOString().split('T')[0];
+
+    // 오늘의 포스트 수를 초기화합니다.
+    const todayCount: number = countPostsByDate[currentDate] || 0;
+
+    // 오늘부터 시작하여 과거로 이동하며 연속된 날짜를 찾습니다.
+    while (countPostsByDate[currentDate]) {
+      // 현재 날짜에 해당하는 포스트 개수를 결과 객체에 저장합니다.
+      result[currentDate] = countPostsByDate[currentDate];
+
+      // 다음 날짜로 이동합니다.
+      currentDate = new Date(new Date(currentDate).getTime() - 86400000)
+        .toISOString()
+        .split('T')[0];
+    }
+
+    // result example
+    // "2024-05-06": 1,
+    // "2024-05-05": 2,
+    // "2024-05-04": 2
+
+    // 결과 객체에서 최신 날짜부터 값을 추출하여 배열로 만듭니다.
+    const continueValues = Object.values(result).reverse();
+
+    // 반환할 객체를 구성하여 반환합니다.
+    return { today: todayCount, continue: continueValues };
+  }
+
+  async countPostsByDate(posts: PostDTO[]) {
+    const postCountsByDate: { [date: string]: number } = {};
+
+    // 게시물을 날짜별로 그룹화하고 해당 날짜에 작성된 게시물 수를 셉니다.
+    posts.forEach((post) => {
+      // 게시물의 작성일을 yyyy-mm-dd 형식의 문자열로 변환하여 날짜만 가져옵니다.
+      const postDate = post.writeDate.toISOString().split('T')[0];
+
+      // 해당 날짜의 게시물 개수를 증가시킵니다.
+      postCountsByDate[postDate] = (postCountsByDate[postDate] || 0) + 1;
+    });
+
+    return postCountsByDate;
   }
 }
