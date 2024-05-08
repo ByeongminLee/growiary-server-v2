@@ -4,6 +4,7 @@ import { PostService } from 'src/post/post.service';
 import { PostFilterService } from 'src/post/postFilter.service';
 import { TopicDTO } from 'src/topic/topic.dto';
 import { TopicRepository } from 'src/topic/topic.repository';
+import toDate from 'src/utils/date';
 
 @Injectable()
 export class ReportService {
@@ -13,42 +14,52 @@ export class ReportService {
     private readonly topicRepository: TopicRepository,
   ) {}
 
-  async report({ year }: { year: string }) {
+  async report({ date }: { date: string }) {
+    const year = date.split('-')[0];
+    // const month = date.split('-')[1];
+
     // 모든 유저의 post 데이터
     const _posts = await this.postService.findAllPost();
 
     // 유저의 전체 post 데이터
     const _userPosts = await this.postService.findUserAllPost();
 
+    // 모든 유저의 year에 해당하는 post 데이터
     const posts = await this.postFilterService.filterYear({
       posts: _posts,
       year,
     });
 
-    const userPosts = await this.postFilterService.filterYear({
-      posts: _userPosts,
-      year,
-    });
+    // 유저의 year에 해당하는 post 데이터
+    // const userPosts = await this.postFilterService.filterYear({
+    //   posts: _userPosts,
+    //   year,
+    // });
 
-    // [기록한 글]
+    // [기록한 추이]
+    // 전체 데이터가 필요하다
     const { userMonthsCount, allUserMonthsCount } = await this.postMonth({
-      posts,
-      userPosts,
+      date,
+      posts: _posts,
+      userPosts: _userPosts,
     });
 
-    // [요일]
+    // [기록패턴: 요일]
     const weekPostCount = await this.postWeek(posts);
 
-    // [시간대]
+    // [기록패턴: 시간대]
     const timePostCount = await this.postTime(posts);
 
-    // [글자수]
-    const charactersCount = await this.charactersCountPost(posts);
-
-    // [주제]
+    // [기록분량: 글자수]
+    const charactersCount = await this.charactersCountPost({
+      date,
+      posts: _userPosts,
+      monthsToCount: 4,
+    });
+    // [기록 카테고리: 주제]
     const topic = await this.postTopic(posts);
 
-    // [태그]: 가장 많이 사용한 태그
+    // [기록 태그]: 가장 많이 사용한 태그
     const tags = await this.tagCount(posts);
     // [태그] : 새로운 태그
     const newTags = await this.newTags(posts);
@@ -74,15 +85,23 @@ export class ReportService {
   async postMonth({
     posts,
     userPosts,
+    date,
   }: {
     posts: PostDTO[] | [];
     userPosts: PostDTO[] | [];
+    date: string;
   }) {
-    const userMonthsCount =
-      await this.postFilterService.monthCountPost(userPosts);
+    const userMonthsCount = await this.postFilterService.getPostCounts({
+      posts: userPosts,
+      date: date,
+      monthsToCount: 7,
+    });
 
-    const allUserMonthsCount =
-      await this.postFilterService.monthCountPost(posts);
+    const allUserMonthsCount = await this.postFilterService.getPostCounts({
+      posts: posts,
+      date: date,
+      monthsToCount: 7,
+    });
 
     return {
       userMonthsCount,
@@ -140,29 +159,67 @@ export class ReportService {
 
   /**
    * [글자수]에 사용하는 데이터
+   * @description 글자수의 합, 평균, 상위 3개의 글 데이터를 계산
    * @param posts 유저의 post 데이터
-   * @returns charactersCount 글자수 데이터
+   * @param date 기준 날짜
+   * @param monthsToCount 최근 몇 개월을 계산할지
+   * @returns 글자수의 합, 평균, 상위 3개의 글 데이터
    */
-  async charactersCountPost(posts: PostDTO[]) {
-    return posts.reduce(
-      (acc, cur) => {
-        const month = new Date(cur.writeDate).getMonth();
-        acc[month] = acc[month]
-          ? {
-              sum: acc[month].sum + cur.charactersCount,
-              avg: (acc[month].avg + cur.charactersCount) / 2,
-              top3:
-                acc[month].top3.length < 3
-                  ? [...acc[month].top3, cur]
-                  : acc[month].top3
-                      .sort((a, b) => b.charactersCount - a.charactersCount)
-                      .slice(0, 2),
-            }
-          : { sum: cur.charactersCount, avg: cur.charactersCount, top3: [cur] };
-        return acc;
-      },
-      Array(12).fill({ sum: 0, avg: 0, top3: [] }),
-    );
+  async charactersCountPost({
+    date,
+    posts,
+    monthsToCount,
+  }: {
+    date: string;
+    posts: PostDTO[];
+    monthsToCount: number;
+  }) {
+    const result: { [key: string]: { sum: number; avg: number; top3: any[] } } =
+      {};
+
+    // 주어진 date를 기준으로 시작 날짜와 끝 날짜를 계산합니다.
+    const [year, month] = date.split('-').map(Number);
+    const endDate = new Date(year, month - 1); // month는 0부터 시작하므로 -1 해줍니다.
+    const startDate = new Date(endDate);
+    startDate.setMonth(startDate.getMonth() - (monthsToCount - 1)); // 시작 날짜를 계산합니다.
+
+    // 각 달에 대한 결과를 계산합니다.
+    for (
+      let currentDate = new Date(startDate);
+      currentDate <= endDate;
+      currentDate.setMonth(currentDate.getMonth() + 1)
+    ) {
+      const currentMonth = currentDate.getMonth() + 1;
+      const currentYear = currentDate.getFullYear();
+      const currentKey = `${currentYear}-${currentMonth.toString().padStart(2, '0')}`;
+
+      // 해당 달의 post를 필터링합니다.
+      const filteredPosts = posts.filter((post) => {
+        const postMonth = post.writeDate.getMonth() + 1;
+        const postYear = post.writeDate.getFullYear();
+        return postMonth === currentMonth && postYear === currentYear;
+      });
+
+      // sum과 avg를 계산합니다.
+      let sum = 0;
+      if (filteredPosts.length > 0) {
+        sum = filteredPosts.reduce(
+          (acc, post) => acc + post.charactersCount,
+          0,
+        );
+      }
+      const avg = sum / (filteredPosts.length || 1); // 분모가 0이 되는 것을 방지합니다.
+
+      // top3를 계산합니다.
+      const top3 = filteredPosts
+        .sort((a, b) => b.charactersCount - a.charactersCount)
+        .slice(0, 3);
+
+      // 결과에 추가합니다.
+      result[currentKey] = { sum, avg, top3 };
+    }
+
+    return result;
   }
 
   /**
@@ -212,8 +269,10 @@ export class ReportService {
    */
   async tagCount(posts: PostDTO[]) {
     return posts.reduce((acc, cur) => {
-      const month = new Date(cur.writeDate).getMonth();
-      cur.tags.forEach((tag) => {
+      const month = toDate(cur.writeDate).getMonth();
+      if (!cur?.tags || cur?.tags.length === 0 || cur?.tags === undefined)
+        return acc;
+      cur?.tags.forEach((tag) => {
         acc[month] = acc[month]
           ? {
               ...acc[month],
@@ -247,6 +306,8 @@ export class ReportService {
     posts.forEach((post) => {
       const monthIndex = new Date(post.writeDate).getMonth();
       const monthTags = monthlyTags[monthIndex];
+
+      if (post.tags === undefined) return;
 
       post.tags.forEach((tag) => {
         if (

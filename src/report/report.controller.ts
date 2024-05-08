@@ -8,8 +8,8 @@ export class ReportController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  async report(@Body('year') year: string) {
-    const data = await this.reportService.report({ year });
+  async report(@Body('date') date: string) {
+    const data = await this.reportService.report({ date });
 
     return { message: 'Success report', data };
   }

@@ -14,8 +14,6 @@ export class AdminService {
    * @param testCreatePostDTO
    */
   async testCreatePost(testCreatePostDTO: TestCreatePostDTO) {
-    console.log('hello', testCreatePostDTO.userId);
-
     const post = firestore().collection('post').doc(testCreatePostDTO.userId);
 
     const lastIdx = await post.get().then((doc) => {

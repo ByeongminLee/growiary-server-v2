@@ -95,7 +95,11 @@ export class PostService {
       return acc;
     }, {});
 
-    return { posts: monthPost, category: categoryCount };
+    const postsAddTopic = await this.postFilterService.postAddTopic({
+      posts: monthPost,
+    });
+
+    return { posts: postsAddTopic, category: categoryCount };
   }
 
   async categoryGroupTopicId() {

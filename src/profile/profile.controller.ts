@@ -18,7 +18,6 @@ export class ProfileController {
   async profileTitleBadge(
     @Body() { titleBadge }: { titleBadge: BadgeKeyName },
   ) {
-    console.log('titleBadge', titleBadge);
     const data = await this.profileService.profileTitleBadge(titleBadge);
 
     return { message: 'User title Badge setting successfully', data };

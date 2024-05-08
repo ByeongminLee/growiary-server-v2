@@ -248,4 +248,42 @@ export class PostFilterService {
       return { ...post, topic };
     });
   }
+
+  /**
+   *
+   * @param posts post 데이터
+   * @param date yyyy-mm 형식
+   * @param monthsToCount 최근 몇 달까지의 데이터를 계산할 것인지
+   * @returns
+   */
+  getPostCounts({
+    posts,
+    date,
+    monthsToCount,
+  }: {
+    posts: PostDTO[];
+    date: string;
+    monthsToCount: number;
+  }): Record<string, number> {
+    // 반환될 결과를 담을 객체 생성
+    const result: Record<string, number> = {};
+
+    // 입력받은 currentDate를 기준으로 최근 monthsToCount달까지의 날짜를 배열에 저장
+    const dateArray = [];
+    const current = new Date(date);
+    for (let i = 0; i < monthsToCount; i++) {
+      dateArray.push(current.toISOString().slice(0, 7)); // 'yyyy-mm' 형식으로 변환하여 저장
+      current.setMonth(current.getMonth() - 1); // 이전 달로 이동
+    }
+
+    // 결과 객체에 각 날짜별 작성된 게시물 수 계산하여 저장
+    for (const dateItem of dateArray) {
+      const count = posts.filter(
+        (post) => post.writeDate.toISOString().slice(0, 7) === dateItem,
+      ).length;
+      result[dateItem] = count;
+    }
+
+    return result;
+  }
 }
