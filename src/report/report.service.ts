@@ -24,17 +24,24 @@ export class ReportService {
     // 유저의 전체 post 데이터
     const _userPosts = await this.postService.findUserAllPost();
 
-    // 모든 유저의 year에 해당하는 post 데이터
-    const posts = await this.postFilterService.filterYear({
-      posts: _posts,
-      year,
-    });
+    // 모든 topic 데이터
+    const topics = (await this.topicRepository.findAll()) as TopicDTO[];
 
-    // 유저의 year에 해당하는 post 데이터
-    // const userPosts = await this.postFilterService.filterYear({
-    //   posts: _userPosts,
+    // 모든 유저의 year에 해당하는 post 데이터
+    // const posts = await this.postFilterService.filterYear({
+    //   posts: _posts,
     //   year,
     // });
+
+    // 유저의 year에 해당하는 post 데이터
+    const userPosts = await this.postFilterService.filterYear({
+      posts: _userPosts,
+      year,
+    });
+    const userPostsByMonth = await this.postFilterService.monthPost(userPosts);
+    const userPostsMonth = userPostsByMonth[date];
+
+    const all = await this.userAllPost(userPosts);
 
     // [기록한 추이]
     // 전체 데이터가 필요하다
@@ -45,10 +52,10 @@ export class ReportService {
     });
 
     // [기록패턴: 요일]
-    const weekPostCount = await this.postWeek(posts);
+    const weekPostCount = await this.postWeek(userPosts);
 
     // [기록패턴: 시간대]
-    const timePostCount = await this.postTime(posts);
+    const timePostCount = await this.postTime(userPosts);
 
     // [기록분량: 글자수]
     const charactersCount = await this.charactersCountPost({
@@ -57,14 +64,15 @@ export class ReportService {
       monthsToCount: 4,
     });
     // [기록 카테고리: 주제]
-    const topic = await this.postTopic(posts);
+    const topic = await this.postTopic({ posts: userPostsMonth, topics });
 
     // [기록 태그]: 가장 많이 사용한 태그
-    const tags = await this.tagCount(posts);
+    const tags = await this.tagCount(userPostsMonth);
     // [태그] : 새로운 태그
-    const newTags = await this.newTags(posts);
+    const newTags = await this.newTags(userPostsMonth);
 
     return {
+      all,
       post: { user: userMonthsCount, all: allUserMonthsCount },
       week: weekPostCount,
       time: timePostCount,
@@ -73,6 +81,18 @@ export class ReportService {
       tags,
       newTags,
     };
+  }
+
+  /**
+   * 유저의 전체 데이터를 받아서 글의 합, 평균, 최대값을 계산
+   * @param posts
+   * @returns 글의 합, 평균, 최대값
+   */
+  async userAllPost(posts: PostDTO[]) {
+    const { sum, avg, max } =
+      await this.postFilterService.postMonthRecord(posts);
+
+    return { sum, avg, max };
   }
 
   /**
@@ -224,42 +244,25 @@ export class ReportService {
 
   /**
    * [주제]에 사용하는 데이터
+   * @description topic 카테고리별로 post데이터를 필터링
    * @param posts 유저의 post 데이터
-   * @returns categorizedPostsByMonth 월별로 카테고리별로 그룹화된 데이터
+   * @param topics 전체 topic 데이터
+   * @returns 카테고리별 post 데이터
    */
-  async postTopic(posts: PostDTO[]) {
-    // 1. 월별로 posts를 구분
-    const postsByMonth: { [month: number]: PostDTO[] } = {};
-    posts.forEach((post) => {
-      const month = new Date(post.writeDate).getMonth() + 1;
-      if (!postsByMonth[month]) {
-        postsByMonth[month] = [];
-      }
-      postsByMonth[month].push(post);
-    });
+  async postTopic({ posts, topics }: { posts: PostDTO[]; topics: TopicDTO[] }) {
+    const categoryGroupTopic =
+      await this.postFilterService.categoryGroupTopicId(topics);
 
-    // 2. 모든 topic 데이터 가져오기
-    const topics = (await this.topicRepository.findAll()) as TopicDTO[];
+    const result = Object.keys(categoryGroupTopic).reduce((acc, category) => {
+      acc[category] = posts.filter((post) =>
+        categoryGroupTopic[category].find((topic) => {
+          return String(topic) == String(post.topicId);
+        }),
+      );
 
-    // 3. 월별로 post를 처리하며 category를 매칭하여 그룹화
-    const categorizedPostsByMonth: Array<{ [category: string]: PostDTO[] }> =
-      [];
-    for (let month = 1; month <= 12; month++) {
-      const categorizedPosts: { [category: string]: PostDTO[] } = {};
-      const postsOfMonth = postsByMonth[month] || [];
-      for (const post of postsOfMonth) {
-        // postId를 tokenId로 변환하고 category를 가져오기
-        const topic = topics.find((topic) => topic.id === Number(post.topicId));
-        const category = topic ? topic.category : 'Uncategorized';
-        if (!categorizedPosts[category]) {
-          categorizedPosts[category] = [];
-        }
-        categorizedPosts[category].push(post);
-      }
-      categorizedPostsByMonth.push(categorizedPosts);
-    }
-
-    return categorizedPostsByMonth;
+      return acc;
+    }, {});
+    return result;
   }
 
   /**

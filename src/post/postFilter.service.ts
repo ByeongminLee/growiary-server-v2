@@ -8,14 +8,17 @@ export class PostFilterService {
   constructor(private readonly topicRepository: TopicRepository) {}
 
   /**
-   * post데이터를 월별로 필터링
+   * post데이터를 년과월별로 필터링
+   * @description key에는 "2024-05" 형태로 반환
    * @param posts
    * @returns { [key: number]: PostDTO[] }
    */
   async monthPost(posts: PostDTO[]): Promise<{ [key: number]: PostDTO[] }> {
     return posts.reduce((acc, cur) => {
       const month = new Date(cur.writeDate).getMonth() + 1;
-      acc[month] = acc[month] ? [...acc[month], cur] : [cur];
+      const year = new Date(cur.writeDate).getFullYear();
+      const key = `${year}-${String(month).padStart(2, '0')}`;
+      acc[key] = acc[key] ? [...acc[key], cur] : [cur];
       return acc;
     }, {});
   }
@@ -285,5 +288,45 @@ export class PostFilterService {
     }
 
     return result;
+  }
+
+  /**
+   * posts 데이터를 받아서 월별로 평균 작성개수를 계산
+   */
+  async postMonthRecord(posts: PostDTO[]): Promise<Record<string, number>> {
+    // 월별로 작성된 게시물 수를 저장할 객체 생성
+    const monthCount: Record<string, number> = {};
+
+    // 월별로 작성된 게시물 수 계산
+    posts.forEach((post) => {
+      const month = post.writeDate.getMonth() + 1;
+      monthCount[month] = monthCount[month] ? monthCount[month] + 1 : 1;
+    });
+
+    const sum = Object.values(monthCount).reduce((acc, cur) => acc + cur, 0);
+
+    const avg = sum / Object.keys(monthCount).length;
+
+    // 월별 max
+    const max = Math.max(...Object.values(monthCount));
+
+    return { sum, avg, max };
+  }
+
+  /**
+   * topicList를 category를 키로 가지고 해당하는 topic데이터를 value로 가지는 객체로 반환
+   */
+  async categoryGroupTopicId(topics: TopicDTO[]) {
+    return topics.reduce((groupedTopics, topic) => {
+      const { category, id } = topic;
+
+      if (!groupedTopics[category]) {
+        groupedTopics[category] = [];
+      }
+
+      groupedTopics[category].push(id);
+
+      return groupedTopics;
+    }, {});
   }
 }
