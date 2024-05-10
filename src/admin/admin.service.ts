@@ -52,6 +52,7 @@ export class AdminService {
         status: true,
         topicId: topicId,
         index: lastIdx + i + 1,
+        charactersCount: Math.floor(Math.random() * 1000) + 1,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
