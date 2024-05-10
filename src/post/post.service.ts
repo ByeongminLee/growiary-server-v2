@@ -26,7 +26,15 @@ export class PostService {
    * @returns 전체 유저 post 리스트
    */
   async findAllPost() {
-    return await this.postRepository.findAll();
+    const allPosts = await this.postRepository.findAll();
+
+    if (allPosts.length === 0) return allPosts;
+
+    const posts = await this.postFilterService.postAddTopic({
+      posts: allPosts,
+    });
+
+    return posts;
   }
 
   /**
@@ -36,13 +44,29 @@ export class PostService {
   async findUserAllPost() {
     const uid = this.request.user.uid;
 
-    return await this.postRepository.findAllUser({ userId: uid });
+    const postOriginal = await this.postRepository.findAllUser({ userId: uid });
+
+    if (postOriginal.length === 0) return postOriginal;
+
+    const posts = await this.postFilterService.postAddTopic({
+      posts: postOriginal,
+    });
+
+    return posts;
   }
 
   async findOnePost(postId: string) {
     const uid = this.request.user.uid;
 
-    return await this.postRepository.findOne({ userId: uid, postId });
+    const postOne = await this.postRepository.findOne({ postId, userId: uid });
+
+    if (postOne === 'NOT_FOUND') return postOne;
+
+    const post = await this.postFilterService.postAddTopic({
+      posts: [postOne],
+    });
+
+    return post[0];
   }
 
   async findMonthPost(month: string) {

@@ -41,6 +41,9 @@ export class ReportService {
     const userPostsByMonth = await this.postFilterService.monthPost(userPosts);
     const userPostsMonth = userPostsByMonth[date];
 
+    /**
+     * 전체 기록
+     */
     const all = await this.userAllPost(userPosts);
 
     // [기록한 추이]
@@ -67,9 +70,9 @@ export class ReportService {
     const topic = await this.postTopic({ posts: userPostsMonth, topics });
 
     // [기록 태그]: 가장 많이 사용한 태그
-    const tags = await this.tagCount(userPostsMonth);
+    const tags = await this.tagCount(userPosts);
     // [태그] : 새로운 태그
-    const newTags = await this.newTags(userPostsMonth);
+    const newTags = await this.newTags(userPosts);
 
     return {
       all,
@@ -89,10 +92,12 @@ export class ReportService {
    * @returns 글의 합, 평균, 최대값
    */
   async userAllPost(posts: PostDTO[]) {
-    const { sum, avg, max } =
-      await this.postFilterService.postMonthRecord(posts);
+    const post = await this.postFilterService.postMonthRecord(posts);
 
-    return { sum, avg, max };
+    const charactersCount =
+      await this.postFilterService.postMonthCharacterCount(posts);
+
+    return { post, charactersCount };
   }
 
   /**

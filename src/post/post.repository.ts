@@ -172,10 +172,11 @@ export class PostRepository {
       return 'NOT_FOUND';
     }
 
-    const createdAt = post.createdAt.toDate();
-    const updatedAt = post.updatedAt.toDate();
+    const createdAt = toDate(post.createdAt);
+    const updatedAt = toDate(post.updatedAt);
+    const writeDate = toDate(post.writeDate);
 
-    return { ...post, createdAt, updatedAt } as PostDTO;
+    return { ...post, createdAt, updatedAt, writeDate } as PostDTO;
   }
 
   /**

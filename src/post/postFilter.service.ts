@@ -314,6 +314,33 @@ export class PostFilterService {
   }
 
   /**
+   * posts 데이터를 받아서 월별로 작성한 글자수와 전체 글자수
+   */
+  async postMonthCharacterCount(posts: PostDTO[]) {
+    // 월별로 작성된 글자수를 저장할 객체 생성
+    const monthCharacterCount: Record<string, number> = {};
+
+    // 월별로 작성된 글자수 계산
+    posts.forEach((post) => {
+      const month = post.writeDate.getMonth() + 1;
+      monthCharacterCount[month] = monthCharacterCount[month]
+        ? monthCharacterCount[month] + post.charactersCount
+        : post.charactersCount;
+    });
+
+    console.log('monthCharacterCount', monthCharacterCount);
+
+    const sum = Object.values(monthCharacterCount).reduce(
+      (acc, cur) => acc + cur,
+      0,
+    );
+
+    const avg = sum / Object.keys(monthCharacterCount).length;
+
+    return { sum, avg };
+  }
+
+  /**
    * topicList를 category를 키로 가지고 해당하는 topic데이터를 value로 가지는 객체로 반환
    */
   async categoryGroupTopicId(topics: TopicDTO[]) {

@@ -94,7 +94,7 @@ export class TopicService {
     // 해당 topicId를 사용한 유저 수
     // 중복되지 않는 유저 수
     const users = allPosts
-      .filter((post) => post.topicId && post.topicId === topTopic.topicId)
+      .filter((post) => post.topicId && post.topicId == topTopic.topicId)
       .map((post) => post.userId)
       .filter((userId, index, arr) => arr.indexOf(userId) === index).length;
 
