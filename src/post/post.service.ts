@@ -216,12 +216,16 @@ export class PostService {
     const countPostsByDate = await this.countPostsByDate(posts);
 
     const result: { [date: string]: number } = {};
-    let currentDate: string | null = new Date().toISOString().split('T')[0];
+    const todayDate: string | null = new Date().toISOString().split('T')[0];
+    let currentDate: string | null = new Date(new Date().getTime() - 86400000)
+      .toISOString()
+      .split('T')[0]; // 기본값 어제 날짜
 
     // 오늘의 포스트 수를 초기화합니다.
     const todayCount: number = countPostsByDate[currentDate] || 0;
+    result[todayDate] = countPostsByDate[todayDate]; // 오늘 날짜 추가
 
-    // 오늘부터 시작하여 과거로 이동하며 연속된 날짜를 찾습니다.
+    // 어제부터 시작하여 과거로 이동하며 연속된 날짜를 찾습니다.
     while (countPostsByDate[currentDate]) {
       // 현재 날짜에 해당하는 포스트 개수를 결과 객체에 저장합니다.
       result[currentDate] = countPostsByDate[currentDate];

@@ -1,4 +1,5 @@
 import { Timestamp } from 'firebase-admin/firestore';
+import { TopicDTO } from 'src/topic/topic.dto';
 
 interface Post {
   userId: string;
@@ -16,6 +17,10 @@ export interface PostDTO extends Post {
   index: number;
   createdAt: Date | Timestamp;
   updatedAt: Date | Timestamp;
+}
+
+export interface PostDTOWithTopic extends PostDTO {
+  topic?: TopicDTO;
 }
 
 export interface CreatePostDTO extends Post {}

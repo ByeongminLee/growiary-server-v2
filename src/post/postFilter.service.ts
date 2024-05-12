@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PostDTO } from 'src/post/post.dto';
+import { PostDTO, PostDTOWithTopic } from 'src/post/post.dto';
 import { TopicDTO } from 'src/topic/topic.dto';
 import { TopicRepository } from 'src/topic/topic.repository';
 
@@ -182,33 +182,33 @@ export class PostFilterService {
     return posts.reduce((acc, cur) => acc + cur.charactersCount, 0);
   }
 
-  async recentPostTopic(posts: PostDTO[]) {
-    const sortedPosts = posts.sort((a, b) =>
-      a.writeDate < b.writeDate ? 1 : -1,
-    );
+  // async recentPostTopic(posts: PostDTO[]) {
+  //   const sortedPosts = posts.sort((a, b) =>
+  //     a.writeDate < b.writeDate ? 1 : -1,
+  //   );
 
-    let recentTopicId = null;
-    for (const post of sortedPosts) {
-      // topicId가 65번이 아닌 것이 최근에 작성한 글의 topicId (65는 자유주제)
-      if (post.topicId && post.topicId != '65') {
-        recentTopicId = post.topicId;
-        break;
-      }
-    }
+  //   let recentTopicId = null;
+  //   for (const post of sortedPosts) {
+  //     // topicId가 65번이 아닌 것이 최근에 작성한 글의 topicId (65는 자유주제)
+  //     if (post.topicId && post.topicId != '65') {
+  //       recentTopicId = post.topicId;
+  //       break;
+  //     }
+  //   }
 
-    if (!recentTopicId) {
-      for (const post of sortedPosts) {
-        if (post.topicId) {
-          recentTopicId = post.topicId;
-          break;
-        }
-      }
-    }
+  //   if (!recentTopicId) {
+  //     for (const post of sortedPosts) {
+  //       if (post.topicId) {
+  //         recentTopicId = post.topicId;
+  //         break;
+  //       }
+  //     }
+  //   }
 
-    const count = posts.filter((post) => post.topicId === recentTopicId).length;
+  //   const count = posts.filter((post) => post.topicId === recentTopicId).length;
 
-    return recentTopicId ? { topicId: recentTopicId, count } : null;
-  }
+  //   return recentTopicId ? { topicId: recentTopicId, count } : null;
+  // }
 
   async filterTopTopic(
     posts: PostDTO[],
@@ -244,7 +244,11 @@ export class PostFilterService {
   /**
    * post 데이터를 넣으면 topicId값에 해당하는 topic 데이터를 같이 반환
    */
-  async postAddTopic({ posts }: { posts: PostDTO[] }) {
+  async postAddTopic({
+    posts,
+  }: {
+    posts: PostDTO[];
+  }): Promise<PostDTOWithTopic[] | []> {
     const topicList: TopicDTO[] = await this.topicRepository.findAll();
     return posts.map((post) => {
       const topic = topicList.find((topic) => String(topic.id) == post.topicId);
@@ -327,8 +331,6 @@ export class PostFilterService {
         ? monthCharacterCount[month] + post.charactersCount
         : post.charactersCount;
     });
-
-    console.log('monthCharacterCount', monthCharacterCount);
 
     const sum = Object.values(monthCharacterCount).reduce(
       (acc, cur) => acc + cur,

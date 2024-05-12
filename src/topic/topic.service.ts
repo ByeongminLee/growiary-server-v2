@@ -3,7 +3,8 @@ import { CreateTopicDTO, TopicDTO, UpdateTopicDTO } from './topic.dto';
 import { TopicRepository } from './topic.repository';
 import { PostFilterService } from 'src/post/postFilter.service';
 import { PostService } from 'src/post/post.service';
-import { PostDTO } from 'src/post/post.dto';
+import { PostDTO, PostDTOWithTopic } from 'src/post/post.dto';
+import toDate from 'src/utils/date';
 
 @Injectable()
 export class TopicService {
@@ -67,11 +68,11 @@ export class TopicService {
     return topTopic;
   }
 
-  async recentTopic(posts: PostDTO[]) {
-    const recentTopic = await this.postFilterService.recentPostTopic(posts);
+  // async recentTopic(posts: PostDTO[]) {
+  //   const recentTopic = await this.postFilterService.recentPostTopic(posts);
 
-    return recentTopic;
-  }
+  //   return recentTopic;
+  // }
 
   /**
    * 가장 많이 사용된 topic
@@ -93,8 +94,13 @@ export class TopicService {
 
     // 해당 topicId를 사용한 유저 수
     // 중복되지 않는 유저 수
-    const users = allPosts
-      .filter((post) => post.topicId && post.topicId == topTopic.topicId)
+    const users = await allPosts
+      .filter(
+        (post) =>
+          post.topicId &&
+          post.topicId == topTopic.topicId &&
+          post.topicId != '65',
+      )
       .map((post) => post.userId)
       .filter((userId, index, arr) => arr.indexOf(userId) === index).length;
 
@@ -108,13 +114,13 @@ export class TopicService {
 
   /**
    * 최근 사용된 추천 topic
-   * @returns topicId 최근에 유저가 사용한 topicId
+   * @returns topicId 최근 사용된 topicId
    * @returns topic 해당 topicId의 topic 데이터
-   * @returns users 해당 topicId를 사용한 전체 유저 수
-   * @returns count 전체 유저가 해당 topicId를 사용한 횟수
+   * @returns day 몇일 전에 기록했는지
    */
   async recentTopicPost() {
-    const userPosts: PostDTO[] = await this.postService.findUserAllPost();
+    const userPosts: PostDTOWithTopic[] =
+      await this.postService.findUserAllPost();
     if (userPosts.length === 0) {
       return {};
     }
@@ -125,23 +131,23 @@ export class TopicService {
       return {};
     }
 
-    const allPosts = await this.postService.findAllPost();
-    const topicList: TopicDTO[] = await this.findAllTopic();
+    // userPosts에서 가장 최근에 사용된 post
+    // topicId가 65인 것은 제외
+    const recentPost = userPosts
+      .filter((post) => post.topicId && post.topicId != '65')
+      .sort((a, b) => {
+        return toDate(b.createdAt).getTime() - toDate(a.createdAt).getTime();
+      });
 
-    // user가 최근에 사용한 topic {topicId, count}
-    const recentTopic = await this.recentTopic(userPosts);
-    const users = allPosts
-      .filter((post) => post.topicId === recentTopic.topicId)
-      .map((post) => post.userId)
-      .filter((userId, index, arr) => arr.indexOf(userId) === index).length;
-
-    const topic = topicList.find((topic) => topic.id == recentTopic.topicId);
+    // recentPost[0].createdAt이 오늘로 부터몇일전인지 계산 (시간은 00시 00분으로 계산)
+    const badeDay = toDate(recentPost[0].createdAt).getDate();
+    const today = toDate(new Date()).getDate();
+    const diff = today - badeDay;
 
     return {
-      topicId: recentTopic.topicId,
-      topic,
-      users,
-      count: recentTopic.count,
+      topicId: recentPost[0].topicId,
+      topic: recentPost[0].topic,
+      day: diff,
     };
   }
 
