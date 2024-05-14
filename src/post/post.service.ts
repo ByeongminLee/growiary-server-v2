@@ -216,14 +216,19 @@ export class PostService {
     const countPostsByDate = await this.countPostsByDate(posts);
 
     const result: { [date: string]: number } = {};
-    const todayDate: string | null = new Date().toISOString().split('T')[0];
+
+    // 한국 시간 기준으로 +9 시간
+    // const todayDate: string | null = new Date().toISOString().split('T')[0];
+    const todayDate = new Date(new Date().getTime() + 32400000)
+      .toISOString()
+      .split('T')[0];
+
     let currentDate: string | null = new Date(new Date().getTime() - 86400000)
       .toISOString()
       .split('T')[0]; // 기본값 어제 날짜
 
     // 오늘의 포스트 수를 초기화합니다.
-    const todayCount: number = countPostsByDate[currentDate] || 0;
-    result[todayDate] = countPostsByDate[todayDate]; // 오늘 날짜 추가
+    const todayCount: number = countPostsByDate[todayDate] || 0;
 
     // 어제부터 시작하여 과거로 이동하며 연속된 날짜를 찾습니다.
     while (countPostsByDate[currentDate]) {
@@ -240,6 +245,11 @@ export class PostService {
     // "2024-05-06": 1,
     // "2024-05-05": 2,
     // "2024-05-04": 2
+
+    // 빈값 일 경우 빈 배열을 반환합니다.
+    if (Object.keys(result).length === 0) {
+      return { today: todayCount, continue: [] };
+    }
 
     // 결과 객체에서 최신 날짜부터 값을 추출하여 배열로 만듭니다.
     const continueValues = Object.values(result).reverse();

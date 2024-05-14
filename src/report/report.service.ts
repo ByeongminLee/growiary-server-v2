@@ -143,8 +143,10 @@ export class ReportService {
   async postWeek(posts: PostDTO[]) {
     return posts.reduce(
       (acc, cur) => {
-        const month = new Date(cur.writeDate).getMonth();
-        const day = new Date(cur.writeDate).getDay();
+        const koreanDate = new Date(cur.writeDate);
+        koreanDate.setTime(koreanDate.getTime() + 9 * 60 * 60 * 1000); // UTC+9 시간대로 변환
+        const month = koreanDate.getMonth();
+        const day = koreanDate.getDay();
         acc[month][day] = acc[month][day] ? acc[month][day] + 1 : 1;
         return acc;
       },
@@ -163,8 +165,11 @@ export class ReportService {
   async postTime(posts: PostDTO[]) {
     return posts.reduce(
       (acc, cur) => {
-        const month = new Date(cur.writeDate).getMonth();
-        const hour = new Date(cur.writeDate).getHours();
+        const koreanDate = new Date(cur.writeDate);
+        koreanDate.setTime(koreanDate.getTime() + 9 * 60 * 60 * 1000); // UTC+9 시간대로 변환
+
+        const month = koreanDate.getMonth();
+        const hour = koreanDate.getHours();
         if (hour < 6) {
           acc[month][0] = acc[month][0] ? acc[month][0] + 1 : 1;
         } else if (hour < 12) {
