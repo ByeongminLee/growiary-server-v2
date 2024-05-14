@@ -132,9 +132,9 @@ export class TopicService {
     }
 
     // userPosts에서 가장 최근에 사용된 post
-    // topicId가 65인 것은 제외
+    // 자유 주제도 포함
     const recentPost = userPosts
-      .filter((post) => post.topicId && post.topicId != '65')
+      .filter((post) => post.topicId)
       .sort((a, b) => {
         return toDate(b.createdAt).getTime() - toDate(a.createdAt).getTime();
       });
