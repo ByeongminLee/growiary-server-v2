@@ -265,13 +265,15 @@ export class ReportService {
 
     const result = Object.keys(categoryGroupTopic).reduce((acc, category) => {
       acc[category] = posts.filter((post) =>
-        categoryGroupTopic[category].find((topic) => {
-          return String(topic) == String(post.topicId);
-        }),
+        // categoryGroupTopic[category].find(
+        //   (topicId) => String(topicId) == String(post.topicId),
+        // ),
+        categoryGroupTopic[category].includes(post.topicId),
       );
 
       return acc;
     }, {});
+
     return result;
   }
 
