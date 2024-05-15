@@ -85,6 +85,15 @@ export class TopicService {
     const allPosts = await this.postService.findAllPost();
     const topicList: TopicDTO[] = await this.findAllTopic();
 
+    if (allPosts.length === 0) {
+      return {
+        topicId: 0,
+        topic: topicList.find((topic) => topic.id === 0),
+        users: 0,
+        count: 0,
+      };
+    }
+
     // growiary에서 가장 많이 사용된 topic {topicId, count}
     const topTopic = await this.topTopic(allPosts);
 
