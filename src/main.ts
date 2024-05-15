@@ -17,15 +17,16 @@ export const createNestServer = async (expressInstance: express.Express) => {
     {},
   );
   app.enableCors({
-    // origin: true,
+    origin: true,
     credentials: true,
-    origin: [
-      'https://growiary-web.vercel.app',
-      'https://dev-growiary-web.vercel.app',
-      'http://localhost:3000',
-      'https://localhost:3000',
-      'https://growiary-admin-v2.vercel.app',
-    ],
+    // origin: [
+    //   'https://growiary-web.vercel.app',
+    //   'https://dev-growiary-web.vercel.app',
+    //   'http://localhost:3000',
+    //   'https://localhost:3000',
+    //   'https://growiary-admin-v2.vercel.app',
+    //   'https://growiary.com',
+    // ],
   });
   app.use(cookieParser());
   return app.init();

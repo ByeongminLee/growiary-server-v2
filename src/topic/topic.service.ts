@@ -63,6 +63,13 @@ export class TopicService {
       (post) => post.topicId && post.topicId != '65',
     );
 
+    if (filteredPosts.length === 0) {
+      return {
+        topicId: 0,
+        count: 0,
+      };
+    }
+
     const topTopic = await this.postFilterService.filterTopTopic(filteredPosts);
 
     return topTopic;
