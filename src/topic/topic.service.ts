@@ -64,10 +64,7 @@ export class TopicService {
     );
 
     if (filteredPosts.length === 0) {
-      return {
-        topicId: 0,
-        count: 0,
-      };
+      return 'NOT_DATA';
     }
 
     const topTopic = await this.postFilterService.filterTopTopic(filteredPosts);
@@ -103,6 +100,15 @@ export class TopicService {
 
     // growiary에서 가장 많이 사용된 topic {topicId, count}
     const topTopic = await this.topTopic(allPosts);
+
+    if (topTopic === 'NOT_DATA') {
+      return {
+        topicId: 0,
+        topic: topicList.find((topic) => topic.id === 0),
+        users: 0,
+        count: 0,
+      };
+    }
 
     const topic = topicList.find(
       (topic) => String(topic.id) === topTopic.topicId,
@@ -228,6 +234,9 @@ export class TopicService {
 
     // 해당 카테고리에 해당하는 post들 중 topTopic의 topicId
     const topTopic = await this.topTopic(categoryPost);
+    if (topTopic === 'NOT_DATA') {
+      return {};
+    }
     const topic = await categoryGroupTopic[categoryName].find(
       (topic) => String(topic.id) === topTopic.topicId,
     );
