@@ -105,18 +105,20 @@ export class PostRepository {
 
   /**
    * 해당 하는 달의 post만 불러오기
-   * @param month 해당하는 달
+   * @param date yyyy-mm 형식의 날짜
    * @param userId 유저 아이디
    * @returns 해당하는 달의 post 리스트
    */
   async findMonth({
     userId,
-    month,
+    date,
   }: {
     userId: string;
-    month: string;
+    date: string;
   }): Promise<PostDTO[] | 'NOT_FOUND'> {
     const postDocs = await firestore().collection('post').doc(userId).get();
+    const year = date.split('-')[0];
+    const month = date.split('-')[1];
 
     if (!postDocs.exists) {
       return 'NOT_FOUND';
@@ -133,10 +135,11 @@ export class PostRepository {
       });
 
     const monthPosts = posts.filter((post) => {
-      const postMonth = Number(
-        toDate(post.writeDate).toISOString().split('-')[1],
+      const postDate = new Date(post.writeDate);
+      return (
+        postDate.getFullYear() === Number(year) &&
+        postDate.getMonth() + 1 === Number(month)
       );
-      return postMonth.toString() === month;
     });
 
     if (monthPosts.length === 0) {

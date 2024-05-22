@@ -46,8 +46,8 @@ export class PostController {
 
   @UseGuards(JwtAuthGuard)
   @Post('month')
-  async findMonthPost(@Body('month') month: string) {
-    const data = await this.postService.findMonthPost(month);
+  async findMonthPost(@Body('date') date: string) {
+    const data = await this.postService.findMonthPost(date);
 
     if (data === 'NOT_FOUND') {
       return {
@@ -61,8 +61,8 @@ export class PostController {
 
   @UseGuards(JwtAuthGuard)
   @Post('record')
-  async myRecordPost(@Body('month') month: string) {
-    const data = await this.postService.myRecordPost(month);
+  async myRecordPost(@Body('date') date: string) {
+    const data = await this.postService.myRecordPost(date);
 
     if (data === 'NOT_FOUND') {
       return {

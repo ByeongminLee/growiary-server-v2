@@ -69,12 +69,12 @@ export class PostService {
     return post[0];
   }
 
-  async findMonthPost(month: string) {
+  async findMonthPost(date: string) {
     const uid = this.request.user.uid;
 
     const monthsPost = await this.postRepository.findMonth({
       userId: uid,
-      month,
+      date,
     });
 
     if (monthsPost === 'NOT_FOUND') {
@@ -88,11 +88,11 @@ export class PostService {
     return posts;
   }
 
-  async myRecordPost(month: string) {
+  async myRecordPost(date: string) {
     const uid = this.request.user.uid;
     const monthPost = await this.postRepository.findMonth({
       userId: uid,
-      month,
+      date,
     });
 
     if (monthPost === 'NOT_FOUND') {
