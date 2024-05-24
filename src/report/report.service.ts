@@ -24,6 +24,24 @@ export class ReportService {
     // 유저의 전체 post 데이터
     const _userPosts = await this.postService.findUserAllPost();
 
+    if (_userPosts.length === 0) return 'NOT_FOUND';
+
+    // 유저의 year에 해당하는 post 데이터
+    const userPosts = await this.postFilterService.filterYear({
+      posts: _userPosts,
+      year,
+    });
+    const userPostsByMonth = await this.postFilterService.monthPost(userPosts);
+    if (
+      userPosts.length === 0 ||
+      Object.keys(userPostsByMonth).includes(date) === false
+    )
+      return 'NOT_FOUND';
+    const userPostsMonth = userPostsByMonth[date];
+
+    if (userPosts.length === 0 || userPostsMonth.length === 0)
+      return 'NOT_FOUND';
+
     // 모든 topic 데이터
     const topics = (await this.topicRepository.findAll()) as TopicDTO[];
 
@@ -32,14 +50,6 @@ export class ReportService {
     //   posts: _posts,
     //   year,
     // });
-
-    // 유저의 year에 해당하는 post 데이터
-    const userPosts = await this.postFilterService.filterYear({
-      posts: _userPosts,
-      year,
-    });
-    const userPostsByMonth = await this.postFilterService.monthPost(userPosts);
-    const userPostsMonth = userPostsByMonth[date];
 
     /**
      * 전체 기록
