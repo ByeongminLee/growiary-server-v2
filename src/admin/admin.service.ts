@@ -4,10 +4,37 @@ import { v4 as uuidv4 } from 'uuid';
 import { firestore } from 'firebase-admin';
 import { randomDate } from 'src/utils/admin';
 import { TopicService } from 'src/topic/topic.service';
+import toDate from 'src/utils/date';
 
 @Injectable()
 export class AdminService {
   constructor(private readonly topicService: TopicService) {}
+
+  /**
+   * 전체 유저 데이터 반환
+   */
+  async findAllUser() {
+    const userDoc = await firestore().collection('users').get();
+    const profileDoc = await firestore().collection('profile').get();
+    const badgeDoc = await firestore().collection('badge').get();
+
+    // userData에 userId에 맞는 profile, badge 데이터 추가
+    return userDoc.docs.map((doc) => {
+      const data = doc.data();
+      const profile = profileDoc.docs.find(
+        (profile) => profile.id === data.uid,
+      );
+      const badge = badgeDoc.docs.find((badge) => badge.id === data.uid);
+
+      return {
+        ...data,
+        profile: profile?.data(),
+        badge: badge?.data(),
+        createdAt: toDate(data.createdAt),
+        updatedAt: toDate(data.updatedAt),
+      };
+    });
+  }
 
   /**
    * 테스트용 포스트 생성

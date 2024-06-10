@@ -2,6 +2,7 @@ import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { FeedbackService } from './feedback.service';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { CreateFeedbackDTO } from './feedback.dto';
+import { AdminGuard } from 'src/admin/guard/admin.guard';
 
 @Controller('feedback')
 export class FeedbackController {
@@ -15,7 +16,7 @@ export class FeedbackController {
     return { message: 'feedback created', data };
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AdminGuard)
   @Get('all')
   async findAllFeedback() {
     const data = await this.feedbackService.findAll();

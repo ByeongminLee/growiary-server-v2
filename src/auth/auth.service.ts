@@ -126,6 +126,7 @@ export class AuthService {
   async testJwt() {
     const user = {
       // kakao 3441743972
+      // google 117894279062888578060
       userId: '117894279062888578060',
       email: '',
       nickname: '',

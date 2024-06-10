@@ -80,6 +80,39 @@ export class PostRepository {
   }
 
   /**
+   * 모든 게시글을 userId로 그룹화하여 반환
+   * userId를 key로 하고 해당하는 게시글 데이터 리스트를 value로 가짐
+   */
+  async findAllGroupByUserId() {
+    const postDocs = await firestore().collection('post').get();
+
+    if (!postDocs.empty) {
+      const posts = postDocs.docs.map((doc) => {
+        const data = doc.data();
+
+        return Object.values(data)
+          .filter((post: PostDTO) => post.status !== false)
+          .map((post) => {
+            const createdAt = post.createdAt.toDate();
+            const updatedAt = post.updatedAt.toDate();
+            const writeDate = toDate(post.writeDate);
+            const userId = doc.id;
+            return { ...post, writeDate, userId, createdAt, updatedAt };
+          });
+      });
+
+      const list = posts.flat();
+      const groupByUserId: { [userId: string]: PostDTO[] } = {};
+      list.forEach((post) => {
+        if (!groupByUserId[post.userId]) {
+          groupByUserId[post.userId] = [];
+        }
+        groupByUserId[post.userId].push(post);
+      });
+      return groupByUserId;
+    }
+  }
+  /**
    * 유저의 모든 게시글 반환
    * @param userId 유저 아이디
    * @returns 유저의 모든 게시글 데이터 리스트

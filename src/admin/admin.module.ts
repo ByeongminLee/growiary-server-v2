@@ -28,6 +28,7 @@ import { ChallengeRepository } from 'src/challenge/challenge.repository';
     TopicRepository,
     PostFilterService,
     ChallengeRepository,
+    UsersRepository,
   ],
 })
 export class AdminModule {}
