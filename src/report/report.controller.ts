@@ -18,7 +18,7 @@ export class ReportController {
       };
     }
 
-    return { message: 'Success report', data };
+    return { message: 'Success report', data: { NOT_REPORT, ...data } };
   }
 }
 

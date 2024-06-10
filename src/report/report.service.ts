@@ -26,6 +26,11 @@ export class ReportService {
 
     if (_userPosts.length === 0) return 'NOT_FOUND';
 
+    /**
+     * 전체 기록
+     */
+    const all = await this.userAllPost(_userPosts);
+
     // 유저의 year에 해당하는 post 데이터
     const userPosts = await this.postFilterService.filterYear({
       posts: _userPosts,
@@ -36,11 +41,10 @@ export class ReportService {
       userPosts.length === 0 ||
       Object.keys(userPostsByMonth).includes(date) === false
     )
-      return 'NOT_FOUND';
+      return { all };
     const userPostsMonth = userPostsByMonth[date];
 
-    if (userPosts.length === 0 || userPostsMonth.length === 0)
-      return 'NOT_FOUND';
+    if (userPosts.length === 0 || userPostsMonth.length === 0) return { all };
 
     // 모든 topic 데이터
     const topics = (await this.topicRepository.findAll()) as TopicDTO[];
@@ -50,11 +54,6 @@ export class ReportService {
     //   posts: _posts,
     //   year,
     // });
-
-    /**
-     * 전체 기록
-     */
-    const all = await this.userAllPost(userPosts);
 
     // [기록한 추이]
     // 전체 데이터가 필요하다
@@ -126,16 +125,32 @@ export class ReportService {
     userPosts: PostDTO[] | [];
     date: string;
   }) {
+    // 현재달 1달을 반환해야해서 추가한 함수
+    function addOneMonth(dateStr: string): string {
+      const [year, month] = dateStr.split('-').map(Number);
+      const date = new Date(year, month - 1);
+      date.setMonth(date.getMonth() + 1);
+      const newYear = date.getFullYear();
+      const newMonth = date.getMonth() + 1;
+      const newMonthStr = newMonth < 10 ? `0${newMonth}` : newMonth.toString();
+
+      return `${newYear}-${newMonthStr}`;
+    }
+
+    // 현재달+1달과 monthsToCount값을 앞달6+현재달1+다음달1로 8을 넘긴다.
+    const DATE = addOneMonth(date);
+    const MONTH_TO_COUNT = 8;
+
     const userMonthsCount = await this.postFilterService.getPostCounts({
       posts: userPosts,
-      date: date,
-      monthsToCount: 7,
+      date: DATE,
+      monthsToCount: MONTH_TO_COUNT,
     });
 
     const allUserMonthsCount = await this.postFilterService.getPostCounts({
       posts: posts,
-      date: date,
-      monthsToCount: 7,
+      date: DATE,
+      monthsToCount: MONTH_TO_COUNT,
     });
 
     return {
